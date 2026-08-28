@@ -9,6 +9,8 @@ const Starfield = (() => {
     doubt: 'cluster',
     music: 'meteors',
     progress: 'rings',
+    targets: 'rings',
+    goals: 'cluster',
     settings: 'wormhole',
   };
 

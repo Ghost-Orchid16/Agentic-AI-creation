@@ -29,9 +29,7 @@ const Pins = (() => {
   function render() {
     const pins = load().sort((a, b) => daysLeft(a.date) - daysLeft(b.date));
     const list = document.getElementById('pin-list');
-    const dash = document.getElementById('dash-pins');
     list.innerHTML = '';
-    dash.innerHTML = '';
 
     if (pins.length === 0) {
       list.innerHTML = '<p class="muted" style="font-size:.8rem">No pins yet. Add one!</p>';
@@ -51,24 +49,9 @@ const Pins = (() => {
         <button class="pin-remove" data-id="${p.id}" title="Remove">✕</button>
       `;
       list.appendChild(card);
-
-      if (d <= 4) {
-        const dc = document.createElement('div');
-        dc.className = `pin-card ${urgencyClass(d)}`;
-        dc.style.minWidth = '220px';
-        dc.innerHTML = card.innerHTML;
-        dash.appendChild(dc);
-      }
     });
 
     list.querySelectorAll('.pin-remove').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const pins2 = load().filter(p => p.id !== btn.dataset.id);
-        save(pins2);
-        render();
-      });
-    });
-    dash.querySelectorAll('.pin-remove').forEach(btn => {
       btn.addEventListener('click', () => {
         const pins2 = load().filter(p => p.id !== btn.dataset.id);
         save(pins2);
@@ -110,5 +93,5 @@ const Pins = (() => {
     });
   }
 
-  return { init, render, add };
+  return { init, render, add, load, daysLeft };
 })();

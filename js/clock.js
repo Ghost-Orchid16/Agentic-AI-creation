@@ -15,9 +15,9 @@ const Clock = (() => {
     const minAngle = m * 6 + s * 0.1;
     const hourAngle = h * 30 + m * 0.5;
 
-    const hourPos = polar(100, 100, 40, hourAngle);
-    const minPos = polar(100, 100, 65, minAngle);
-    const secPos = polar(100, 100, 90, secAngle);
+    const hourPos = polar(20, 20, 8, hourAngle);
+    const minPos = polar(20, 20, 12, minAngle);
+    const secPos = polar(20, 20, 16, secAngle);
 
     document.getElementById('orbit-hour').setAttribute('cx', hourPos.x);
     document.getElementById('orbit-hour').setAttribute('cy', hourPos.y);
@@ -26,11 +26,7 @@ const Clock = (() => {
     document.getElementById('orbit-sec').setAttribute('cx', secPos.x);
     document.getElementById('orbit-sec').setAttribute('cy', secPos.y);
 
-    const timeStr = now.toLocaleTimeString();
-    document.getElementById('digital-time').textContent = timeStr;
-    document.getElementById('digital-date').textContent = now.toLocaleDateString(undefined, {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
+    document.getElementById('digital-time').textContent = now.toLocaleTimeString();
   }
 
   function init() {

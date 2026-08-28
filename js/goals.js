@@ -48,6 +48,8 @@ const Goals = (() => {
     const total = list.length;
     const done = list.filter(g => g.done).length;
     document.getElementById('goal-progress-bar').style.width = total ? `${(done / total) * 100}%` : '0%';
+    const badge = document.getElementById('goal-count-badge');
+    if (badge) badge.textContent = `${done}/${total}`;
   }
 
   function add(text) {
@@ -75,5 +77,5 @@ const Goals = (() => {
     });
   }
 
-  return { init };
+  return { init, todays };
 })();

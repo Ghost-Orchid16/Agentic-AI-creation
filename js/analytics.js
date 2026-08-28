@@ -10,7 +10,7 @@ const Analytics = (() => {
         if (activeTimers[key]) {
           clearInterval(activeTimers[key].handle);
           const elapsedMin = Math.round((Date.now() - activeTimers[key].start) / 60000);
-          if (elapsedMin > 0) Subjects.addMinutes(btn.dataset.subject, btn.dataset.topic, elapsedMin);
+          if (elapsedMin > 0) { Subjects.addMinutes(btn.dataset.subject, btn.dataset.topic, elapsedMin); Store.logStudyMinutes(elapsedMin); }
           delete activeTimers[key];
           btn.textContent = '⏱ Start';
           btn.classList.remove('timer-running');
@@ -78,6 +78,38 @@ const Analytics = (() => {
 
     const matrixEl = document.getElementById('ptab-matrix');
     if (matrixEl) renderMatrix(matrixEl, allTopics);
+
+    renderWeeklyChart();
+    renderDistribution(subjects);
+  }
+
+  function renderWeeklyChart() {
+    const el = document.getElementById('chart-weekly');
+    if (!el) return;
+    const days = Store.last7Days();
+    const values = days.map(d => Store.studyMinutesOn(d));
+    const max = Math.max(60, ...values);
+    el.innerHTML = days.map((d, i) => {
+      const pct = Math.round((values[i] / max) * 100);
+      const label = new Date(d + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'narrow' });
+      return `<div class="chart-bar-wrap"><div class="chart-bar" style="height:${Math.max(3, pct)}%" title="${values[i]}m"></div><div class="chart-bar-label">${label}</div></div>`;
+    }).join('');
+  }
+
+  function renderDistribution(subjects) {
+    const el = document.getElementById('chart-distribution');
+    if (!el) return;
+    const total = subjects.reduce((sum, s) => sum + s.topics.length, 0);
+    if (total === 0) { el.innerHTML = '<p class="muted">Add subjects to see distribution.</p>'; return; }
+    el.innerHTML = subjects.filter(s => s.topics.length > 0).map(s => {
+      const pct = Math.round((s.topics.length / total) * 100);
+      return `
+        <div class="dist-row">
+          <span class="dist-label">${escapeHtml(s.name)}</span>
+          <div class="dist-track"><div class="dist-fill" style="width:${pct}%"></div></div>
+          <span class="dist-pct">${pct}%</span>
+        </div>`;
+    }).join('');
   }
 
   function renderMatrix(el, allTopics) {
