@@ -2,8 +2,9 @@ const DoubtSolver = (() => {
   const DEFS = {
     photosynthesis: 'Photosynthesis is the process by which green plants use sunlight, water and CO₂ to make glucose and release oxygen. Equation: 6CO₂ + 6H₂O + light → C₆H₁₂O₆ + 6O₂.',
     newton: "Newton's Laws: 1) An object stays at rest/motion unless acted on by a force. 2) F = ma. 3) Every action has an equal and opposite reaction.",
-    photosynthesis2: '',
   };
+
+  let lastQuestion = '';
 
   function tryMath(text) {
     const cleaned = text.replace(/[^0-9+\-*/().\s]/g, '');
@@ -23,7 +24,7 @@ const DoubtSolver = (() => {
 
     const lower = text.toLowerCase();
     for (const key in DEFS) {
-      if (DEFS[key] && lower.includes(key)) return DEFS[key];
+      if (lower.includes(key)) return DEFS[key];
     }
 
     if (/how (do|can) i study|how to study/.test(lower)) {
@@ -35,13 +36,56 @@ const DoubtSolver = (() => {
     return "I'm running in offline mode, so I can handle basic maths and a few common topics directly. For open-ended doubts, add an API key in Settings so I can think it through using an online AI model.";
   }
 
-  function addMessage(text, who) {
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function formatBotText(text) {
+    const parts = text.split(/```([\s\S]*?)```/g);
+    return parts.map((part, i) => {
+      if (i % 2 === 1) return `<pre><code>${escapeHtml(part.trim())}</code></pre>`;
+      return escapeHtml(part).replace(/\n/g, '<br>');
+    }).join('');
+  }
+
+  function addUserMessage(text) {
     const win = document.getElementById('chat-window');
     const div = document.createElement('div');
-    div.className = `msg ${who}`;
+    div.className = 'msg user';
     div.textContent = text;
     win.appendChild(div);
     win.scrollTop = win.scrollHeight;
+  }
+
+  function addBotMessage(text, { thinking } = {}) {
+    const win = document.getElementById('chat-window');
+    const div = document.createElement('div');
+    div.className = 'msg bot';
+    if (thinking) {
+      div.innerHTML = '<span class="thinking-dots"><span></span><span></span><span></span></span>';
+    } else {
+      renderBotContent(div, text);
+    }
+    win.appendChild(div);
+    win.scrollTop = win.scrollHeight;
+    return div;
+  }
+
+  function renderBotContent(div, text) {
+    div.innerHTML = `<div class="msg-text">${formatBotText(text)}</div>
+      <div class="msg-actions">
+        <button type="button" data-action="copy" title="Copy">⧉ Copy</button>
+        <button type="button" data-action="regenerate" title="Regenerate">↻ Regenerate</button>
+      </div>`;
+    div.dataset.raw = text;
+    div.querySelector('[data-action="copy"]').addEventListener('click', () => {
+      navigator.clipboard?.writeText(text).catch(() => {});
+    });
+    div.querySelector('[data-action="regenerate"]').addEventListener('click', () => {
+      if (lastQuestion) handleAsk(lastQuestion, { replace: div });
+    });
   }
 
   function updateBadge() {
@@ -53,28 +97,44 @@ const DoubtSolver = (() => {
       badge.textContent = 'Offline Assistant';
       badge.classList.remove('online');
     }
-  }
-
-  async function handleAsk(text) {
-    addMessage(text, 'user');
-    if (AIBridge.isConfigured()) {
-      addMessage('Thinking…', 'bot');
-      const win = document.getElementById('chat-window');
-      const thinkingEl = win.lastChild;
-      const reply = await AIBridge.ask(text);
-      if (reply) {
-        thinkingEl.textContent = reply;
-      } else {
-        thinkingEl.textContent = offlineAnswer(text) + '\n\n(AI request failed, showed an offline fallback instead.)';
-      }
-      win.scrollTop = win.scrollHeight;
-    } else {
-      addMessage(offlineAnswer(text), 'bot');
+    const statusBadge = document.getElementById('ai-status-badge');
+    if (statusBadge) {
+      statusBadge.textContent = AIBridge.isConfigured() ? 'Connected' : 'Not connected';
+      statusBadge.classList.toggle('online', AIBridge.isConfigured());
     }
   }
 
+  async function handleAsk(text, { replace } = {}) {
+    lastQuestion = text;
+    if (!replace) addUserMessage(text);
+
+    let target;
+    if (replace) {
+      replace.innerHTML = '<span class="thinking-dots"><span></span><span></span><span></span></span>';
+      target = replace;
+    } else {
+      target = addBotMessage('', { thinking: true });
+    }
+
+    let reply = null;
+    if (AIBridge.isConfigured()) {
+      reply = await AIBridge.ask(text);
+    }
+    const finalText = reply || (AIBridge.isConfigured()
+      ? offlineAnswer(text) + '\n\n(AI request failed, showed an offline fallback instead.)'
+      : offlineAnswer(text));
+    renderBotContent(target, finalText);
+    const win = document.getElementById('chat-window');
+    win.scrollTop = win.scrollHeight;
+  }
+
+  function clearChat() {
+    document.getElementById('chat-window').innerHTML = '';
+    addBotMessage("Hi! I'm Orbit's Doubt Solver. Ask me a question, or try a maths expression like 12*(4+3).");
+  }
+
   function init() {
-    addMessage("Hi! I'm Orbit's Doubt Solver. Ask me a question, or try a maths expression like 12*(4+3).", 'bot');
+    addBotMessage("Hi! I'm Orbit's Doubt Solver. Ask me a question, or try a maths expression like 12*(4+3).");
     updateBadge();
     document.addEventListener('orbit:ai-config-changed', updateBadge);
 
@@ -85,6 +145,16 @@ const DoubtSolver = (() => {
       if (!val) return;
       input.value = '';
       handleAsk(val);
+    });
+
+    document.getElementById('chat-clear-btn').addEventListener('click', clearChat);
+
+    document.querySelectorAll('#suggested-prompts button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = document.getElementById('chat-input');
+        input.value = lastQuestion ? `${btn.dataset.prompt}: ${lastQuestion}` : btn.dataset.prompt;
+        input.focus();
+      });
     });
   }
 

@@ -35,5 +35,27 @@ const Store = (() => {
     }
     return streak;
   }
-  return { get, set, uid, todayKey, logActivity, currentStreak };
+  function logStudyMinutes(minutes) {
+    if (!minutes) return;
+    const key = 'orbit_daily_minutes';
+    const map = get(key, {});
+    const today = todayKey();
+    map[today] = (map[today] || 0) + minutes;
+    set(key, map);
+    logActivity();
+  }
+  function studyMinutesOn(dateStr) {
+    return get('orbit_daily_minutes', {})[dateStr] || 0;
+  }
+  function last7Days() {
+    const out = [];
+    const cursor = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(cursor);
+      d.setDate(d.getDate() - i);
+      out.push(d.toISOString().slice(0, 10));
+    }
+    return out;
+  }
+  return { get, set, uid, todayKey, logActivity, currentStreak, logStudyMinutes, studyMinutesOn, last7Days };
 })();

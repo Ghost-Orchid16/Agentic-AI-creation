@@ -23,11 +23,19 @@ const Targets = (() => {
       card.innerHTML = `
         <div class="t-top">
           <span>🎯 ${escapeHtml(t.name)}</span>
-          <button class="pin-remove" data-id="${t.id}" data-action="remove">✕</button>
+          <span class="t-actions">
+            ${!t.done ? `<button class="icon-remove" data-id="${t.id}" data-action="edit" title="Edit">✎</button>` : ''}
+            <button class="icon-remove" data-id="${t.id}" data-action="remove" title="Delete">✕</button>
+          </span>
         </div>
         <div class="target-bar-track"><div class="target-bar-fill" style="width:${pct}%"></div></div>
         <small>${t.done ? 'Completed 🎉' : overdue ? 'Time is up — mark done or extend' : remainingMin + ' min left'}</small>
         ${!t.done ? `<div style="margin-top:6px"><button class="ghost-btn small" data-id="${t.id}" data-action="done" style="padding:4px 10px;font-size:.75rem">Mark done</button></div>` : ''}
+        <form class="target-edit-form" data-id="${t.id}" hidden>
+          <input type="text" value="${escapeHtml(t.name)}" data-role="edit-name" required>
+          <input type="number" value="${t.minutes}" min="1" data-role="edit-minutes" style="width:90px" required>
+          <button type="submit" class="primary-btn small">Save</button>
+        </form>
       `;
       list.appendChild(card);
     });
@@ -43,6 +51,26 @@ const Targets = (() => {
         const ts = load();
         const t = ts.find(x => x.id === btn.dataset.id);
         if (t) t.done = true;
+        save(ts);
+        render();
+      });
+    });
+    list.querySelectorAll('[data-action="edit"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const form = list.querySelector(`.target-edit-form[data-id="${btn.dataset.id}"]`);
+        if (form) form.hidden = !form.hidden;
+      });
+    });
+    list.querySelectorAll('.target-edit-form').forEach(form => {
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const ts = load();
+        const t = ts.find(x => x.id === form.dataset.id);
+        if (t) {
+          t.name = form.querySelector('[data-role="edit-name"]').value.trim() || t.name;
+          t.minutes = parseInt(form.querySelector('[data-role="edit-minutes"]').value, 10) || t.minutes;
+          t.createdAt = Date.now();
+        }
         save(ts);
         render();
       });

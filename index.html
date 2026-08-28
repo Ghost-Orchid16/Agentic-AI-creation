@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orbit &mdash; Study Planner AI Agent</title>
-<meta name="description" content="An AI-assisted, multi-subject study planner, doubt solver, focus music player and goal tracker in one cosmic dashboard.">
+<title>Orbit &mdash; Your AI Study Universe</title>
+<meta name="description" content="Orbit plans your study time across every subject, solves doubts instantly, and keeps you focused — a premium AI study command center.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -20,265 +20,359 @@
   <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <span class="brand-emoji">🪐</span>
-      <div>
-        <h1>Orbit</h1>
-        <p>Study Planner AI Agent</p>
-      </div>
+      <span class="brand-mark" aria-hidden="true">🪐</span>
+      <span class="brand-word">Orbit</span>
     </div>
 
-    <!-- Fancy orbit clock -->
-    <section class="widget clock-widget" aria-label="Clock">
-      <svg viewBox="0 0 200 200" class="orbit-clock">
-        <defs>
-          <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation="3.2" result="blur"></feGaussianBlur>
-            <feMerge><feMergeNode in="blur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
-          </filter>
-        </defs>
-        <circle class="orbit-path" cx="100" cy="100" r="40"></circle>
-        <circle class="orbit-path" cx="100" cy="100" r="65"></circle>
-        <circle class="orbit-path" cx="100" cy="100" r="90"></circle>
-        <circle class="orbit-core" cx="100" cy="100" r="9" filter="url(#glow)"></circle>
-        <circle id="orbit-hour" class="orbit-dot hour" cx="100" cy="60" r="5" filter="url(#glow)"></circle>
-        <circle id="orbit-min" class="orbit-dot minute" cx="100" cy="35" r="4" filter="url(#glow)"></circle>
-        <circle id="orbit-sec" class="orbit-dot second" cx="100" cy="10" r="3" filter="url(#glow)"></circle>
-      </svg>
-      <div class="digital-time" id="digital-time">00:00:00</div>
-      <div class="digital-date" id="digital-date">Loading date&hellip;</div>
-    </section>
+    <nav aria-label="Primary">
+      <div class="nav-group" id="nav-primary">
+        <button class="nav-item active" data-tab="dashboard"><span class="nav-icon">◆</span>Dashboard</button>
+        <button class="nav-item" data-tab="planner"><span class="nav-icon">✦</span>Study Planner</button>
+        <button class="nav-item" data-tab="doubt"><span class="nav-icon">◈</span>Doubt Solver</button>
+        <button class="nav-item" data-tab="music"><span class="nav-icon">♪</span>Focus Music</button>
+        <button class="nav-item" data-tab="progress"><span class="nav-icon">▲</span>Progress</button>
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-group">
+        <button class="nav-item" data-tab="targets"><span class="nav-icon">◎</span>Targets</button>
+        <button class="nav-item" data-tab="goals"><span class="nav-icon">☑</span>Daily Goals</button>
+      </div>
+    </nav>
 
-    <!-- Theme switcher -->
-    <section class="widget" aria-label="Theme switcher">
-      <h2 class="widget-title">🎨 Theme</h2>
-      <div class="theme-grid" id="theme-grid"></div>
-    </section>
+    <div class="nav-spacer"></div>
 
-    <!-- Pinned reminders -->
-    <section class="widget" aria-label="Pinned reminders">
-      <h2 class="widget-title">📌 Pinned Reminders
-        <button class="mini-btn" id="add-pin-btn" title="Add reminder">+</button>
-      </h2>
-      <div class="pin-list" id="pin-list"></div>
-    </section>
-
-    <!-- Review queue (spaced repetition) -->
-    <section class="widget" aria-label="Review queue">
-      <h2 class="widget-title">🔁 Review Today</h2>
-      <div id="review-queue"></div>
-    </section>
-
+    <div class="nav-divider"></div>
+    <button class="nav-item" data-tab="settings"><span class="nav-icon">⚙</span>Settings</button>
+    <button class="profile-chip" id="profile-chip">
+      <span class="profile-avatar" id="profile-avatar-mini">🧑‍🎓</span>
+      <span>
+        <span class="profile-name" id="profile-name-mini">Student</span><br>
+        <span class="profile-role">View profile</span>
+      </span>
+    </button>
   </aside>
 
   <!-- ============ MAIN ============ -->
-  <main class="main" id="main">
+  <div style="min-width:0; display:flex; flex-direction:column;">
 
-    <nav class="tabbar" id="tabbar">
-      <button class="tab-btn active" data-tab="dashboard">🏠 Dashboard</button>
-      <button class="tab-btn" data-tab="planner">🧭 Study Planner</button>
-      <button class="tab-btn" data-tab="doubt">💬 Doubt Solver</button>
-      <button class="tab-btn" data-tab="music">🎵 Focus Music</button>
-      <button class="tab-btn" data-tab="progress">📊 Progress</button>
-      <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
-      <button class="hamburger" id="hamburger" aria-label="Toggle sidebar">☰</button>
-    </nav>
+    <!-- ============ TOPBAR ============ -->
+    <header class="topbar">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation">☰</button>
+        <div>
+          <div class="topbar-title" id="topbar-title">Dashboard</div>
+          <div class="topbar-desc" id="topbar-desc">Your mission control for today.</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span style="display:flex; align-items:center; gap:6px;">
+          <svg viewBox="0 0 40 40" width="22" height="22" aria-hidden="true">
+            <circle cx="20" cy="20" r="17" fill="none" stroke="var(--border)" stroke-width="1"></circle>
+            <circle cx="20" cy="20" r="2.4" fill="var(--accent-2)"></circle>
+            <circle id="orbit-hour" cx="20" cy="12" r="1.6" fill="var(--text)"></circle>
+            <circle id="orbit-min" cx="20" cy="8" r="1.3" fill="var(--accent-2)"></circle>
+            <circle id="orbit-sec" cx="20" cy="4" r="1" fill="var(--accent)"></circle>
+          </svg>
+          <span class="topbar-clock" id="digital-time">00:00:00</span>
+        </span>
 
-    <!-- ---------- DASHBOARD ---------- -->
-    <section class="tab-panel active" id="tab-dashboard">
-      <div class="card quote-card" id="quote-banner">Loading today's motivation&hellip;</div>
+        <div class="popover-wrap">
+          <button class="icon-btn" id="notif-btn" aria-haspopup="true" aria-expanded="false" aria-label="Reminders"><span aria-hidden="true">🔔</span><span class="dot" id="notif-dot" hidden></span></button>
+          <div class="popover" id="notif-popover" hidden>
+            <div class="popover-title">Pinned Reminders</div>
+            <div class="pin-list" id="pin-list"></div>
+            <button class="ghost-btn small" id="add-pin-btn" style="width:100%; margin-top:8px;">+ Add reminder</button>
+          </div>
+        </div>
 
-      <div id="exam-countdown-hero" class="card exam-hero" hidden></div>
+        <div class="popover-wrap">
+          <button class="icon-btn" id="theme-btn" aria-haspopup="true" aria-expanded="false" aria-label="Change theme"><span aria-hidden="true">🎨</span></button>
+          <div class="popover" id="theme-popover" hidden>
+            <div class="popover-title">Theme</div>
+            <div class="theme-grid" id="theme-grid" style="margin-bottom:10px;"></div>
+          </div>
+        </div>
 
-      <div class="panel-grid">
+        <button class="icon-btn" id="topbar-profile-btn" aria-label="Profile" title="Profile"><span aria-hidden="true" id="profile-avatar-topbar">🧑‍🎓</span></button>
+      </div>
+    </header>
 
-        <div class="card span-2">
-          <h2>Welcome back 👋</h2>
-          <p class="muted">Here's your mission control for today. Set a target, tick off your goals, and let Orbit plan the rest.</p>
-          <div id="dash-pins" class="dash-pins"></div>
+    <main class="main" id="main">
+
+      <!-- ---------- DASHBOARD ---------- -->
+      <section class="tab-panel active" id="tab-dashboard" aria-label="Dashboard">
+        <h1 class="greeting-title" id="greeting-title">Good evening 👋</h1>
+        <p class="greeting-sub">Ready to make today count?</p>
+
+        <div class="stat-row">
+          <div class="stat-tile"><div class="stat-label">Study time today</div><div class="stat-value" id="stat-study-time">0m</div><div class="stat-sub">across all subjects</div></div>
+          <div class="stat-tile"><div class="stat-label">Streak</div><div class="stat-value" id="stat-streak">0</div><div class="stat-sub">days in a row</div></div>
+          <div class="stat-tile"><div class="stat-label">Tasks today</div><div class="stat-value" id="stat-tasks">0/0</div><div class="stat-sub">goals completed</div></div>
+          <div class="stat-tile"><div class="stat-label">Next exam</div><div class="stat-value" id="stat-next-exam">—</div><div class="stat-sub" id="stat-next-exam-sub">no exams pinned</div></div>
+        </div>
+
+        <div id="exam-countdown-hero" class="exam-hero" hidden></div>
+        <div id="pinned-alert" class="pinned-alert" hidden></div>
+
+        <div class="panel-grid">
+          <div class="card span-2">
+            <h2>📍 Today's Plan</h2>
+            <p class="card-desc">Generated by Orbit from your subjects, exam dates and topic priority.</p>
+            <div class="timeline" id="today-timeline"></div>
+          </div>
+
+          <div class="card span-2">
+            <h2>⚡ Quick Actions</h2>
+            <div class="quick-actions">
+              <button class="quick-action" data-action="goto-planner"><span class="qa-icon">✦</span><span class="qa-label">Create Study Plan</span><span class="qa-sub">Add a subject &amp; generate</span></button>
+              <button class="quick-action" data-action="goto-doubt"><span class="qa-icon">◈</span><span class="qa-label">Ask AI a Doubt</span><span class="qa-sub">Get an instant answer</span></button>
+              <button class="quick-action" data-action="goto-music"><span class="qa-icon">♪</span><span class="qa-label">Start Focus Session</span><span class="qa-sub">Play something calm</span></button>
+              <button class="quick-action" data-action="goto-goals"><span class="qa-icon">☑</span><span class="qa-label">Add Daily Goal</span><span class="qa-sub">One more thing to do</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- STUDY PLANNER ---------- -->
+      <section class="tab-panel" id="tab-planner" aria-label="Study Planner">
+        <div class="card">
+          <h2>📚 Your Subjects</h2>
+          <p class="card-desc">Add every subject you have an exam for, with its topics. Orbit plans all of them together.</p>
+          <form id="subject-form" class="planner-form-row" style="margin:14px 0">
+            <input type="text" id="subject-name" placeholder="Subject name (e.g. Physics)" required>
+            <input type="date" id="subject-date" required aria-label="Exam date">
+            <button type="submit" class="btn primary-btn">Add Subject</button>
+          </form>
+          <div id="subjects-list"></div>
         </div>
 
         <div class="card">
-          <h2>🎯 Today's Target</h2>
-          <form id="target-form" class="stack-form">
-            <input type="text" id="target-name" placeholder="e.g. Finish Physics Ch.4" required>
-            <input type="number" id="target-minutes" placeholder="Time limit (minutes)" min="1" required>
-            <button type="submit" class="primary-btn">Set Target</button>
+          <h2>🧠 How Orbit Thinks</h2>
+          <div id="reasoning-panel" class="reasoning-panel"></div>
+        </div>
+
+        <div class="card">
+          <h2>Generate Master Plan</h2>
+          <div class="planner-form-row">
+            <input type="number" id="planner-minutes-per-day" placeholder="Study minutes/day (default 180)" min="30" value="180" aria-label="Study minutes per day">
+            <button type="button" class="btn primary-btn" id="planner-generate-btn">Generate / Refresh Plan</button>
+            <button type="button" class="btn ghost-btn" id="planner-ai-btn">✨ Get AI tips for today</button>
+          </div>
+          <div class="ai-tip-box" id="planner-ai-tip" hidden></div>
+        </div>
+
+        <div class="card" id="planner-output" hidden>
+          <div class="planner-tabs">
+            <button class="ptab-btn active" data-ptab="plan">Day Plan</button>
+            <button class="ptab-btn" data-ptab="summary">Summary</button>
+            <button class="ptab-btn" data-ptab="flow">Flowchart</button>
+            <button class="ptab-btn" data-ptab="matrix">Matrix</button>
+            <button class="ptab-btn" data-ptab="ai-summary">AI Summary</button>
+          </div>
+          <div class="ptab-panel active" id="ptab-plan"></div>
+          <div class="ptab-panel" id="ptab-summary"></div>
+          <div class="ptab-panel" id="ptab-flow"></div>
+          <div class="ptab-panel" id="ptab-matrix"></div>
+          <div class="ptab-panel" id="ptab-ai-summary">
+            <div class="planner-form-row">
+              <select id="ai-summary-topic-select" style="flex:1"></select>
+              <button type="button" class="btn primary-btn small" id="ai-summary-btn">Generate Summary</button>
+            </div>
+            <div class="ai-summary-box" id="ai-summary-output" hidden></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- DOUBT SOLVER ---------- -->
+      <section class="tab-panel" id="tab-doubt" aria-label="Doubt Solver">
+        <div class="card chat-card">
+          <div class="chat-header">
+            <h2>💬 Instant Doubt Solver</h2>
+            <div class="chat-header-actions">
+              <span class="badge" id="ai-mode-badge">Offline Assistant</span>
+              <button class="icon-btn" id="chat-clear-btn" title="Clear chat" aria-label="Clear chat">🗑</button>
+            </div>
+          </div>
+          <div class="chat-window" id="chat-window"></div>
+          <div class="suggested-prompts" id="suggested-prompts">
+            <button type="button" data-prompt="Explain this simply">Explain this simply</button>
+            <button type="button" data-prompt="Give me an example">Give me an example</button>
+            <button type="button" data-prompt="Test me on this">Test me on this</button>
+            <button type="button" data-prompt="Explain step by step">Explain step by step</button>
+          </div>
+          <form class="chat-input-row" id="chat-form">
+            <input type="text" id="chat-input" placeholder="Type your doubt here&hellip;" autocomplete="off" required aria-label="Your doubt">
+            <button type="submit" class="btn primary-btn">Ask</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ---------- MUSIC ---------- -->
+      <section class="tab-panel" id="tab-music" aria-label="Focus Music">
+        <div class="card music-card">
+          <h2>🔎 Search &amp; Play Any Song</h2>
+          <p class="card-desc">Plays instantly through YouTube's own embedded player &mdash; nothing downloads to your device.</p>
+          <form id="yt-search-form" class="stack-form-row" style="margin-top:10px">
+            <input type="text" id="yt-search-input" placeholder="Search any song, artist or playlist&hellip;" required aria-label="Search music">
+            <button type="submit" class="btn primary-btn small">Search</button>
+          </form>
+          <div id="yt-embed-wrap" class="yt-embed-wrap" hidden>
+            <iframe id="yt-embed" src="" title="YouTube search results" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            <a id="yt-open-link" href="#" target="_blank" rel="noopener" class="muted" style="font-size:.8rem">Open full results on YouTube ↗</a>
+          </div>
+        </div>
+
+        <div class="card music-card">
+          <h2>🎵 My Focus Playlist</h2>
+          <div class="category-chips" id="category-chips"></div>
+
+          <div class="player">
+            <div class="now-playing-visual" id="np-visual"><span class="np-note">♪</span></div>
+            <div class="eq" id="eq"><span></span><span></span><span></span><span></span><span></span></div>
+            <div class="now-playing">
+              <strong id="now-title">Select a track</strong>
+              <small id="now-artist">&mdash;</small>
+            </div>
+            <input type="range" id="seek" value="0" min="0" max="100" step="0.1" class="seek" aria-label="Seek">
+            <div class="time-row"><span id="time-cur">0:00</span><span id="time-dur">0:00</span></div>
+            <div class="controls">
+              <button id="btn-prev" class="round-btn" title="Previous" aria-label="Previous track">⏮</button>
+              <button id="btn-play" class="round-btn play" title="Play/Pause" aria-label="Play or pause">▶</button>
+              <button id="btn-next" class="round-btn" title="Next" aria-label="Next track">⏭</button>
+              <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7" title="Volume" aria-label="Volume">
+            </div>
+          </div>
+
+          <form id="add-track-form" class="stack-form-row">
+            <input type="text" id="track-name" placeholder="Track name" aria-label="Track name">
+            <input type="url" id="track-url" placeholder="Direct audio URL (.mp3)" required aria-label="Track URL">
+            <button type="submit" class="btn primary-btn small">Add</button>
+          </form>
+
+          <ul class="playlist" id="playlist"></ul>
+        </div>
+        <audio id="audio" preload="metadata"></audio>
+      </section>
+
+      <!-- ---------- TARGETS ---------- -->
+      <section class="tab-panel" id="tab-targets" aria-label="Targets">
+        <div class="card">
+          <h2>◎ Targets</h2>
+          <p class="card-desc">Longer-term objectives — set one, track progress toward it.</p>
+          <form id="target-form" class="planner-form-row" style="margin-top:10px">
+            <input type="text" id="target-name" placeholder="e.g. Finish Class 11 Physics Mechanics" required>
+            <input type="number" id="target-minutes" placeholder="Time limit (minutes)" min="1" required aria-label="Time limit in minutes">
+            <button type="submit" class="btn primary-btn">Set Target</button>
           </form>
           <div id="target-list" class="target-list"></div>
         </div>
+      </section>
 
+      <!-- ---------- DAILY GOALS ---------- -->
+      <section class="tab-panel" id="tab-goals" aria-label="Daily Goals">
         <div class="card">
-          <h2>✅ Today's Goals</h2>
-          <form id="goal-form" class="stack-form-row">
-            <input type="text" id="goal-text" placeholder="Add something to do today&hellip;" required>
-            <button type="submit" class="primary-btn small">Add</button>
+          <div class="goal-header-row">
+            <h2>☑ Today's Goals</h2>
+            <span class="badge" id="goal-count-badge">0/0</span>
+          </div>
+          <form id="goal-form" class="stack-form-row" style="margin-top:10px">
+            <input type="text" id="goal-text" placeholder="Add something to do today&hellip;" required aria-label="New goal">
+            <button type="submit" class="btn primary-btn small">Add</button>
           </form>
           <div class="goal-progress"><div class="goal-progress-bar" id="goal-progress-bar"></div></div>
           <ul class="goal-list" id="goal-list"></ul>
         </div>
+      </section>
 
-      </div>
-    </section>
-
-    <!-- ---------- STUDY PLANNER ---------- -->
-    <section class="tab-panel" id="tab-planner">
-      <div class="card">
-        <h2>📚 Your Subjects</h2>
-        <p class="muted">Add every subject you have an exam for, with its topics. Orbit plans <strong>all of them together</strong> — giving more daily time to whichever exam is closer, and switching a subject to pure revision on its last day.</p>
-        <form id="subject-form" class="planner-form-row" style="margin-bottom:14px">
-          <input type="text" id="subject-name" placeholder="Subject name (e.g. Physics)" required>
-          <input type="date" id="subject-date" required>
-          <button type="submit" class="primary-btn">Add Subject</button>
-        </form>
-        <div id="subjects-list"></div>
-      </div>
-
-      <div class="card">
-        <h2>🧭 Generate Master Plan</h2>
-        <div class="planner-form-row">
-          <input type="number" id="planner-minutes-per-day" placeholder="Study minutes/day (default 180)" min="30" value="180">
-          <button type="button" class="primary-btn" id="planner-generate-btn">Generate / Refresh Plan</button>
-          <button type="button" class="ghost-btn" id="planner-ai-btn">✨ Get AI tips for today</button>
+      <!-- ---------- PROGRESS ---------- -->
+      <section class="tab-panel" id="tab-progress" aria-label="Progress">
+        <div class="card">
+          <h2>Overall Progress</h2>
+          <div class="target-bar-track" style="height:8px"><div class="target-bar-fill" id="progress-overall-bar" style="width:0%"></div></div>
+          <p class="muted" id="progress-overall-label" style="margin-top:8px">0/0 topics complete</p>
+          <p id="progress-streak" style="font-family:var(--font-display);font-size:1.1rem;margin-top:6px">🔥 0 day streak</p>
         </div>
-        <div class="ai-tip-box" id="planner-ai-tip" hidden></div>
-      </div>
-
-      <div class="card" id="planner-output" hidden>
-        <div class="planner-tabs">
-          <button class="ptab-btn active" data-ptab="plan">📅 Day Plan</button>
-          <button class="ptab-btn" data-ptab="summary">📝 Summary</button>
-          <button class="ptab-btn" data-ptab="flow">🔀 Flowchart</button>
-          <button class="ptab-btn" data-ptab="matrix">🧩 Matrix</button>
-        </div>
-        <div class="ptab-panel active" id="ptab-plan"></div>
-        <div class="ptab-panel" id="ptab-summary"></div>
-        <div class="ptab-panel" id="ptab-flow"></div>
-        <div class="ptab-panel" id="ptab-matrix"></div>
-      </div>
-    </section>
-
-    <!-- ---------- DOUBT SOLVER ---------- -->
-    <section class="tab-panel" id="tab-doubt">
-      <div class="card chat-card">
-        <div class="chat-header">
-          <h2>💬 Instant Doubt Solver</h2>
-          <span class="badge" id="ai-mode-badge">Offline Assistant</span>
-        </div>
-        <div class="chat-window" id="chat-window"></div>
-        <form class="chat-input-row" id="chat-form">
-          <input type="text" id="chat-input" placeholder="Type your doubt here&hellip;" autocomplete="off" required>
-          <button type="submit" class="primary-btn">Ask</button>
-        </form>
-      </div>
-    </section>
-
-    <!-- ---------- MUSIC ---------- -->
-    <section class="tab-panel" id="tab-music">
-      <div class="card music-card">
-        <h2>🔎 Search &amp; Play Any Song</h2>
-        <p class="muted">Search plays instantly through YouTube's own embedded player &mdash; nothing downloads to your device.</p>
-        <form id="yt-search-form" class="stack-form-row">
-          <input type="text" id="yt-search-input" placeholder="Search any song, artist or playlist&hellip;" required>
-          <button type="submit" class="primary-btn small">Search</button>
-        </form>
-        <div id="yt-embed-wrap" class="yt-embed-wrap" hidden>
-          <iframe id="yt-embed" src="" title="YouTube search results" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-          <a id="yt-open-link" href="#" target="_blank" rel="noopener" class="muted" style="font-size:.8rem">Open full results on YouTube ↗</a>
-        </div>
-      </div>
-
-      <div class="card music-card">
-        <h2>🎵 My Focus Playlist</h2>
-        <p class="muted">A starter lo-fi playlist, plus any direct audio links you add.</p>
-
-        <div class="player">
-          <div class="eq" id="eq"><span></span><span></span><span></span><span></span><span></span></div>
-          <div class="now-playing">
-            <strong id="now-title">Select a track</strong>
-            <small id="now-artist">&mdash;</small>
+        <div class="panel-grid">
+          <div class="card">
+            <h2>Weekly Activity</h2>
+            <p class="card-desc">Days you studied in the last 7 days.</p>
+            <div class="chart-row" id="chart-weekly"></div>
           </div>
-          <input type="range" id="seek" value="0" min="0" max="100" step="0.1" class="seek">
-          <div class="time-row"><span id="time-cur">0:00</span><span id="time-dur">0:00</span></div>
-          <div class="controls">
-            <button id="btn-prev" class="round-btn" title="Previous">⏮</button>
-            <button id="btn-play" class="round-btn play" title="Play/Pause">▶</button>
-            <button id="btn-next" class="round-btn" title="Next">⏭</button>
-            <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7" title="Volume">
+          <div class="card">
+            <h2>Subject Distribution</h2>
+            <p class="card-desc">Share of topics per subject.</p>
+            <div id="chart-distribution"></div>
           </div>
         </div>
+        <div class="card">
+          <h2>Per-Subject Progress</h2>
+          <div id="progress-subjects" class="target-list"></div>
+        </div>
+        <div class="card">
+          <h2>Time Analytics</h2>
+          <div id="progress-time-table"></div>
+        </div>
+      </section>
 
-        <form id="add-track-form" class="stack-form-row">
-          <input type="text" id="track-name" placeholder="Track name">
-          <input type="url" id="track-url" placeholder="Direct audio URL (.mp3)" required>
-          <button type="submit" class="primary-btn small">Add</button>
-        </form>
+      <!-- ---------- SETTINGS ---------- -->
+      <section class="tab-panel" id="tab-settings" aria-label="Settings">
+        <div class="card">
+          <h2>🧑‍🎓 Profile</h2>
+          <p class="card-desc">Shown in your greeting and around the app. Stored only in this browser.</p>
+          <form id="profile-form" class="stack-form" style="margin-top:10px">
+            <label for="profile-name-input">Display name</label>
+            <input type="text" id="profile-name-input" placeholder="Student" maxlength="30">
+            <label>Avatar</label>
+            <div class="avatar-picker" id="avatar-picker"></div>
+            <button type="submit" class="btn primary-btn small" style="width:fit-content">Save Profile</button>
+          </form>
+        </div>
 
-        <ul class="playlist" id="playlist"></ul>
-      </div>
-      <audio id="audio" preload="metadata"></audio>
-    </section>
+        <div class="card">
+          <h2>⚙️ AI Connection <span class="badge" id="ai-status-badge">Not connected</span></h2>
+          <p class="card-desc">Orbit works fully offline out of the box. To let the Doubt Solver and Planner use a real online AI model, add your own API details below. Your key is stored only in this browser and never sent anywhere except the endpoint you configure.</p>
+          <form id="settings-form" class="stack-form" style="margin-top:10px">
+            <label for="api-endpoint">API Endpoint (OpenAI-compatible <code>/chat/completions</code>)</label>
+            <input type="url" id="api-endpoint" placeholder="https://api.openai.com/v1/chat/completions">
+            <label for="api-model">Model name</label>
+            <input type="text" id="api-model" placeholder="e.g. gpt-4o-mini">
+            <label for="api-key">API Key</label>
+            <input type="password" id="api-key" placeholder="sk-&hellip;">
+            <div class="planner-form-row">
+              <button type="submit" class="btn primary-btn">Save</button>
+              <button type="button" class="btn ghost-btn" id="clear-api-btn">Clear</button>
+            </div>
+          </form>
+        </div>
 
-    <!-- ---------- PROGRESS ---------- -->
-    <section class="tab-panel" id="tab-progress">
-      <div class="card">
-        <h2>📊 Overall Progress</h2>
-        <div class="target-bar-track" style="height:14px"><div class="target-bar-fill" id="progress-overall-bar" style="width:0%"></div></div>
-        <p class="muted" id="progress-overall-label" style="margin-top:8px">0/0 topics complete</p>
-        <p id="progress-streak" style="font-family:var(--font-display);font-size:1.2rem">🔥 0 day streak</p>
-      </div>
-      <div class="card">
-        <h2>📚 Per-Subject Progress</h2>
-        <div id="progress-subjects" class="target-list"></div>
-      </div>
-      <div class="card">
-        <h2>⏱ Time Analytics</h2>
-        <div id="progress-time-table"></div>
-      </div>
-    </section>
+        <div class="card">
+          <h2>ℹ️ About Orbit</h2>
+          <p class="muted">Orbit is a no-code-friendly, browser-based AI study agent built with HTML, CSS and JavaScript for a school Work Education activity. All data (goals, targets, pins, subjects, plans) is saved locally in your browser using <code>localStorage</code> &mdash; nothing is uploaded anywhere unless you connect an AI key yourself.</p>
+        </div>
+      </section>
 
-    <!-- ---------- SETTINGS ---------- -->
-    <section class="tab-panel" id="tab-settings">
-      <div class="card">
-        <h2>⚙️ AI Connection (optional)</h2>
-        <p class="muted">Orbit works fully offline out of the box. To let the Doubt Solver and Planner use a real online AI model, add your own API details below. Your key is stored only in this browser (localStorage) and is never sent anywhere except the endpoint you configure.</p>
-        <form id="settings-form" class="stack-form">
-          <label>API Endpoint (OpenAI-compatible <code>/chat/completions</code> URL)</label>
-          <input type="url" id="api-endpoint" placeholder="https://api.openai.com/v1/chat/completions">
-          <label>Model name</label>
-          <input type="text" id="api-model" placeholder="e.g. gpt-4o-mini">
-          <label>API Key</label>
-          <input type="password" id="api-key" placeholder="sk-&hellip;">
-          <div class="planner-form-row">
-            <button type="submit" class="primary-btn">Save</button>
-            <button type="button" class="ghost-btn" id="clear-api-btn">Clear</button>
-          </div>
-        </form>
-      </div>
-
-      <div class="card">
-        <h2>ℹ️ About Orbit</h2>
-        <p class="muted">Orbit is a no-code-friendly, browser-based AI study agent built with HTML, CSS and JavaScript for a school Work Education activity. All data (goals, targets, pins, subjects, plans) is saved locally in your browser using <code>localStorage</code> &mdash; nothing is uploaded anywhere unless you connect an AI key yourself.</p>
-      </div>
-    </section>
-
-  </main>
+    </main>
+  </div>
 </div>
 
 <!-- Add pin modal -->
 <div class="modal-backdrop" id="pin-modal-backdrop" hidden>
-  <div class="modal">
-    <h2>📌 New Pinned Reminder</h2>
+  <div class="modal" role="dialog" aria-labelledby="pin-modal-title">
+    <h2 id="pin-modal-title">📌 New Pinned Reminder</h2>
     <form id="pin-form" class="stack-form">
+      <label for="pin-title">Title</label>
       <input type="text" id="pin-title" placeholder="e.g. Physics Exam" required>
+      <label for="pin-type">Type</label>
       <select id="pin-type">
         <option value="exam">📝 Exam</option>
         <option value="assignment">📄 Assignment</option>
         <option value="event">📅 Event</option>
       </select>
+      <label for="pin-date">Date</label>
       <input type="date" id="pin-date" required>
       <div class="planner-form-row">
-        <button type="submit" class="primary-btn">Pin it</button>
-        <button type="button" class="ghost-btn" id="pin-cancel-btn">Cancel</button>
+        <button type="submit" class="btn primary-btn">Pin it</button>
+        <button type="button" class="btn ghost-btn" id="pin-cancel-btn">Cancel</button>
       </div>
     </form>
   </div>
@@ -287,7 +381,6 @@
 <script src="js/theme.js"></script>
 <script src="js/starfield.js"></script>
 <script src="js/clock.js"></script>
-<script src="js/quotes.js"></script>
 <script src="js/store.js"></script>
 <script src="js/aibridge.js"></script>
 <script src="js/pins.js"></script>
@@ -300,6 +393,7 @@
 <script src="js/doubtsolver.js"></script>
 <script src="js/music.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/profile.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
