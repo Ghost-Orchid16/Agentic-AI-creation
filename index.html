@@ -4,16 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Orbit &mdash; Your AI Study Universe</title>
-<meta name="description" content="Orbit plans your study time across every subject, solves doubts instantly, and keeps you focused — a premium AI study command center.">
+<meta name="description" content="Orbit is an AI study command center: it analyzes your subjects, exams and progress, then decides what to study next.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.294.0/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
-<canvas id="starfield" aria-hidden="true"></canvas>
+<canvas id="scene3d-canvas" aria-hidden="true"></canvas>
 
 <div class="app-shell">
 
@@ -26,23 +28,23 @@
 
     <nav aria-label="Primary">
       <div class="nav-group" id="nav-primary">
-        <button class="nav-item active" data-tab="dashboard"><span class="nav-icon">◆</span>Dashboard</button>
-        <button class="nav-item" data-tab="planner"><span class="nav-icon">✦</span>Study Planner</button>
-        <button class="nav-item" data-tab="doubt"><span class="nav-icon">◈</span>Doubt Solver</button>
-        <button class="nav-item" data-tab="music"><span class="nav-icon">♪</span>Focus Music</button>
-        <button class="nav-item" data-tab="progress"><span class="nav-icon">▲</span>Progress</button>
+        <button class="nav-item active" data-tab="dashboard"><i data-lucide="layout-dashboard" class="nav-icon"></i>Command Center</button>
+        <button class="nav-item" data-tab="planner"><i data-lucide="compass" class="nav-icon"></i>Study Planner</button>
+        <button class="nav-item" data-tab="doubt"><i data-lucide="sparkles" class="nav-icon"></i>AI Tutor</button>
+        <button class="nav-item" data-tab="music"><i data-lucide="headphones" class="nav-icon"></i>Focus Lab</button>
+        <button class="nav-item" data-tab="progress"><i data-lucide="orbit" class="nav-icon"></i>Progress</button>
       </div>
-      <div class="nav-divider"></div>
+      <div class="nav-section-label">Personal</div>
       <div class="nav-group">
-        <button class="nav-item" data-tab="targets"><span class="nav-icon">◎</span>Targets</button>
-        <button class="nav-item" data-tab="goals"><span class="nav-icon">☑</span>Daily Goals</button>
+        <button class="nav-item" data-tab="targets"><i data-lucide="rocket" class="nav-icon"></i>Missions</button>
+        <button class="nav-item" data-tab="goals"><i data-lucide="check-square" class="nav-icon"></i>Today's Objectives</button>
       </div>
     </nav>
 
     <div class="nav-spacer"></div>
 
-    <div class="nav-divider"></div>
-    <button class="nav-item" data-tab="settings"><span class="nav-icon">⚙</span>Settings</button>
+    <div class="nav-section-label">System</div>
+    <button class="nav-item" data-tab="settings"><i data-lucide="settings" class="nav-icon"></i>Settings</button>
     <button class="profile-chip" id="profile-chip">
       <span class="profile-avatar" id="profile-avatar-mini">🧑‍🎓</span>
       <span>
@@ -58,9 +60,9 @@
     <!-- ============ TOPBAR ============ -->
     <header class="topbar">
       <div style="display:flex; align-items:center; gap:10px;">
-        <button class="hamburger" id="hamburger" aria-label="Toggle navigation">☰</button>
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><i data-lucide="menu"></i></button>
         <div>
-          <div class="topbar-title" id="topbar-title">Dashboard</div>
+          <div class="topbar-title" id="topbar-title">Command Center</div>
           <div class="topbar-desc" id="topbar-desc">Your mission control for today.</div>
         </div>
       </div>
@@ -77,7 +79,7 @@
         </span>
 
         <div class="popover-wrap">
-          <button class="icon-btn" id="notif-btn" aria-haspopup="true" aria-expanded="false" aria-label="Reminders"><span aria-hidden="true">🔔</span><span class="dot" id="notif-dot" hidden></span></button>
+          <button class="icon-btn" id="notif-btn" aria-haspopup="true" aria-expanded="false" aria-label="Reminders"><i data-lucide="bell"></i><span class="dot" id="notif-dot" hidden></span></button>
           <div class="popover" id="notif-popover" hidden>
             <div class="popover-title">Pinned Reminders</div>
             <div class="pin-list" id="pin-list"></div>
@@ -86,9 +88,9 @@
         </div>
 
         <div class="popover-wrap">
-          <button class="icon-btn" id="theme-btn" aria-haspopup="true" aria-expanded="false" aria-label="Change theme"><span aria-hidden="true">🎨</span></button>
+          <button class="icon-btn" id="theme-btn" aria-haspopup="true" aria-expanded="false" aria-label="Change theme"><i data-lucide="palette"></i></button>
           <div class="popover" id="theme-popover" hidden>
-            <div class="popover-title">Theme</div>
+            <div class="popover-title">Environment</div>
             <div class="theme-grid" id="theme-grid" style="margin-bottom:10px;"></div>
           </div>
         </div>
@@ -99,44 +101,58 @@
 
     <main class="main" id="main">
 
-      <!-- ---------- DASHBOARD ---------- -->
-      <section class="tab-panel active" id="tab-dashboard" aria-label="Dashboard">
-        <h1 class="greeting-title" id="greeting-title">Good evening 👋</h1>
-        <p class="greeting-sub">Ready to make today count?</p>
+      <!-- ---------- COMMAND CENTER ---------- -->
+      <section class="tab-panel active" id="tab-dashboard" aria-label="Command Center">
+        <div class="hero-zone">
+          <h1 class="greeting-title" id="greeting-title">Good evening 👋</h1>
+          <div class="hero-mission" id="hero-mission"></div>
+        </div>
 
         <div class="stat-row">
           <div class="stat-tile"><div class="stat-label">Study time today</div><div class="stat-value" id="stat-study-time">0m</div><div class="stat-sub">across all subjects</div></div>
           <div class="stat-tile"><div class="stat-label">Streak</div><div class="stat-value" id="stat-streak">0</div><div class="stat-sub">days in a row</div></div>
-          <div class="stat-tile"><div class="stat-label">Tasks today</div><div class="stat-value" id="stat-tasks">0/0</div><div class="stat-sub">goals completed</div></div>
+          <div class="stat-tile"><div class="stat-label">Objectives today</div><div class="stat-value" id="stat-tasks">0/0</div><div class="stat-sub">completed</div></div>
           <div class="stat-tile"><div class="stat-label">Next exam</div><div class="stat-value" id="stat-next-exam">—</div><div class="stat-sub" id="stat-next-exam-sub">no exams pinned</div></div>
         </div>
 
-        <div id="exam-countdown-hero" class="exam-hero" hidden></div>
-        <div id="pinned-alert" class="pinned-alert" hidden></div>
+        <div id="crunch-banner" class="crunch-banner" hidden></div>
+
+        <div class="glass-panel" id="recommendation-panel">
+          <div class="panel-eyebrow"><i data-lucide="brain-circuit"></i> Orbit's Analysis</div>
+          <div id="recommendation-body"></div>
+        </div>
 
         <div class="panel-grid">
-          <div class="card span-2">
-            <h2>📍 Today's Plan</h2>
-            <p class="card-desc">Generated by Orbit from your subjects, exam dates and topic priority.</p>
-            <div class="timeline" id="today-timeline"></div>
+          <div class="glass-panel">
+            <div class="panel-eyebrow"><i data-lucide="radar"></i> Exam Radar</div>
+            <div id="exam-radar"></div>
           </div>
+          <div class="glass-panel">
+            <div class="panel-eyebrow"><i data-lucide="clipboard-list"></i> Orbit's Briefing</div>
+            <div id="briefing-body"></div>
+          </div>
+        </div>
 
-          <div class="card span-2">
-            <h2>⚡ Quick Actions</h2>
-            <div class="quick-actions">
-              <button class="quick-action" data-action="goto-planner"><span class="qa-icon">✦</span><span class="qa-label">Create Study Plan</span><span class="qa-sub">Add a subject &amp; generate</span></button>
-              <button class="quick-action" data-action="goto-doubt"><span class="qa-icon">◈</span><span class="qa-label">Ask AI a Doubt</span><span class="qa-sub">Get an instant answer</span></button>
-              <button class="quick-action" data-action="goto-music"><span class="qa-icon">♪</span><span class="qa-label">Start Focus Session</span><span class="qa-sub">Play something calm</span></button>
-              <button class="quick-action" data-action="goto-goals"><span class="qa-icon">☑</span><span class="qa-label">Add Daily Goal</span><span class="qa-sub">One more thing to do</span></button>
-            </div>
+        <div class="glass-panel">
+          <div class="panel-eyebrow"><i data-lucide="map-pin"></i> Today's Plan</div>
+          <div class="timeline" id="today-timeline"></div>
+        </div>
+
+        <div class="glass-panel">
+          <div class="panel-eyebrow"><i data-lucide="zap"></i> Quick Actions</div>
+          <div class="quick-actions">
+            <button class="quick-action" data-action="goto-planner"><i data-lucide="compass" class="qa-icon"></i><span class="qa-label">Create Study Plan</span><span class="qa-sub">Add a subject &amp; generate</span></button>
+            <button class="quick-action" data-action="goto-doubt"><i data-lucide="sparkles" class="qa-icon"></i><span class="qa-label">Ask AI Tutor</span><span class="qa-sub">Get an instant answer</span></button>
+            <button class="quick-action" data-action="goto-music"><i data-lucide="headphones" class="qa-icon"></i><span class="qa-label">Start Focus Session</span><span class="qa-sub">Play something calm</span></button>
+            <button class="quick-action" data-action="goto-goals"><i data-lucide="check-square" class="qa-icon"></i><span class="qa-label">Add Objective</span><span class="qa-sub">One more thing to do</span></button>
           </div>
         </div>
       </section>
 
       <!-- ---------- STUDY PLANNER ---------- -->
       <section class="tab-panel" id="tab-planner" aria-label="Study Planner">
-        <div class="card">
-          <h2>📚 Your Subjects</h2>
+        <div class="glass-panel">
+          <div class="panel-eyebrow"><i data-lucide="book-open"></i> Your Subjects</div>
           <p class="card-desc">Add every subject you have an exam for, with its topics. Orbit plans all of them together.</p>
           <form id="subject-form" class="planner-form-row" style="margin:14px 0">
             <input type="text" id="subject-name" placeholder="Subject name (e.g. Physics)" required>
@@ -146,28 +162,29 @@
           <div id="subjects-list"></div>
         </div>
 
-        <div class="card">
-          <h2>🧠 How Orbit Thinks</h2>
+        <div class="glass-panel">
+          <div class="panel-eyebrow"><i data-lucide="brain-circuit"></i> How Orbit Thinks</div>
           <div id="reasoning-panel" class="reasoning-panel"></div>
         </div>
 
-        <div class="card">
-          <h2>Generate Master Plan</h2>
+        <div class="glass-panel">
+          <div class="panel-eyebrow"><i data-lucide="calendar-clock"></i> Generate Master Plan</div>
           <div class="planner-form-row">
             <input type="number" id="planner-minutes-per-day" placeholder="Study minutes/day (default 180)" min="30" value="180" aria-label="Study minutes per day">
             <button type="button" class="btn primary-btn" id="planner-generate-btn">Generate / Refresh Plan</button>
-            <button type="button" class="btn ghost-btn" id="planner-ai-btn">✨ Get AI tips for today</button>
+            <button type="button" class="btn ghost-btn" id="planner-ai-btn"><i data-lucide="sparkles" style="width:14px;height:14px"></i> Get AI tips for today</button>
           </div>
           <div class="ai-tip-box" id="planner-ai-tip" hidden></div>
         </div>
 
-        <div class="card" id="planner-output" hidden>
+        <div class="glass-panel" id="planner-output" hidden>
           <div class="planner-tabs">
             <button class="ptab-btn active" data-ptab="plan">Day Plan</button>
             <button class="ptab-btn" data-ptab="summary">Summary</button>
             <button class="ptab-btn" data-ptab="flow">Flowchart</button>
             <button class="ptab-btn" data-ptab="matrix">Matrix</button>
             <button class="ptab-btn" data-ptab="ai-summary">AI Summary</button>
+            <button class="ptab-btn" data-ptab="knowledge">Knowledge Map</button>
           </div>
           <div class="ptab-panel active" id="ptab-plan"></div>
           <div class="ptab-panel" id="ptab-summary"></div>
@@ -180,37 +197,67 @@
             </div>
             <div class="ai-summary-box" id="ai-summary-output" hidden></div>
           </div>
+          <div class="ptab-panel" id="ptab-knowledge"></div>
         </div>
       </section>
 
-      <!-- ---------- DOUBT SOLVER ---------- -->
-      <section class="tab-panel" id="tab-doubt" aria-label="Doubt Solver">
-        <div class="card chat-card">
-          <div class="chat-header">
-            <h2>💬 Instant Doubt Solver</h2>
-            <div class="chat-header-actions">
-              <span class="badge" id="ai-mode-badge">Offline Assistant</span>
-              <button class="icon-btn" id="chat-clear-btn" title="Clear chat" aria-label="Clear chat">🗑</button>
+      <!-- ---------- AI TUTOR ---------- -->
+      <section class="tab-panel" id="tab-doubt" aria-label="AI Tutor">
+        <div class="tutor-layout">
+          <div class="glass-panel chat-card">
+            <div class="chat-header">
+              <div class="panel-eyebrow"><i data-lucide="sparkles"></i> AI Tutor</div>
+              <div class="chat-header-actions">
+                <button class="icon-btn" id="socratic-toggle" title="Toggle Socratic Mode" aria-pressed="false"><i data-lucide="lightbulb"></i></button>
+                <button class="icon-btn" id="chat-clear-btn" title="Clear chat" aria-label="Clear chat"><i data-lucide="trash-2"></i></button>
+              </div>
             </div>
+            <div class="chat-window" id="chat-window"></div>
+            <div class="suggested-prompts" id="suggested-prompts">
+              <button type="button" data-prompt="Explain this simply">Explain simply</button>
+              <button type="button" data-prompt="Give me an example">Give example</button>
+              <button type="button" data-prompt="Explain step by step">Step-by-step</button>
+              <button type="button" data-action="quiz-me">Quiz me</button>
+              <button type="button" data-prompt="Where did I go wrong?">Find my mistake</button>
+              <button type="button" data-prompt="Summarize this">Summarize</button>
+            </div>
+            <div id="image-preview-row" class="image-preview-row" hidden></div>
+            <form class="chat-input-row" id="chat-form">
+              <label class="icon-btn" id="image-upload-btn" title="Attach a photo of your question">
+                <i data-lucide="image-plus"></i>
+                <input type="file" id="image-upload-input" accept="image/*" hidden>
+              </label>
+              <input type="text" id="chat-input" placeholder="Type your doubt here&hellip;" autocomplete="off" aria-label="Your doubt">
+              <button type="submit" class="btn primary-btn">Ask</button>
+            </form>
           </div>
-          <div class="chat-window" id="chat-window"></div>
-          <div class="suggested-prompts" id="suggested-prompts">
-            <button type="button" data-prompt="Explain this simply">Explain this simply</button>
-            <button type="button" data-prompt="Give me an example">Give me an example</button>
-            <button type="button" data-prompt="Test me on this">Test me on this</button>
-            <button type="button" data-prompt="Explain step by step">Explain step by step</button>
-          </div>
-          <form class="chat-input-row" id="chat-form">
-            <input type="text" id="chat-input" placeholder="Type your doubt here&hellip;" autocomplete="off" required aria-label="Your doubt">
-            <button type="submit" class="btn primary-btn">Ask</button>
-          </form>
+
+          <aside class="tutor-context glass-panel">
+            <div class="panel-eyebrow">Context</div>
+            <div class="context-row"><span class="context-label">Subject</span><select id="context-subject"></select></div>
+            <div class="context-row"><span class="context-label">Topic</span><select id="context-topic"></select></div>
+            <div class="context-row"><span class="context-label">AI status</span><span class="badge" id="ai-mode-badge">○ Offline Assistant</span></div>
+            <div class="socratic-note muted" id="socratic-note" hidden>Socratic Mode is on — Orbit will guide you with questions instead of giving direct answers.</div>
+          </aside>
         </div>
       </section>
 
-      <!-- ---------- MUSIC ---------- -->
-      <section class="tab-panel" id="tab-music" aria-label="Focus Music">
-        <div class="card music-card">
-          <h2>🔎 Search &amp; Play Any Song</h2>
+      <!-- ---------- FOCUS LAB ---------- -->
+      <section class="tab-panel" id="tab-music" aria-label="Focus Lab">
+        <div class="glass-panel focus-session-panel" id="focus-session-panel">
+          <div class="panel-eyebrow"><i data-lucide="timer"></i> Focus Session</div>
+          <div class="focus-timer" id="focus-timer-display">25:00</div>
+          <div class="muted" id="focus-timer-topic">No topic selected</div>
+          <div class="planner-form-row" style="margin-top:10px; justify-content:center">
+            <select id="focus-topic-select" style="max-width:280px"></select>
+            <button class="btn primary-btn small" id="focus-start-btn">Start</button>
+            <button class="btn ghost-btn small" id="focus-pause-btn" hidden>Pause</button>
+            <button class="btn ghost-btn small" id="focus-end-btn" hidden>End Session</button>
+          </div>
+        </div>
+
+        <div class="glass-panel music-card">
+          <div class="panel-eyebrow"><i data-lucide="search"></i> Search &amp; Play Any Song</div>
           <p class="card-desc">Plays instantly through YouTube's own embedded player &mdash; nothing downloads to your device.</p>
           <form id="yt-search-form" class="stack-form-row" style="margin-top:10px">
             <input type="text" id="yt-search-input" placeholder="Search any song, artist or playlist&hellip;" required aria-label="Search music">
@@ -222,12 +269,12 @@
           </div>
         </div>
 
-        <div class="card music-card">
-          <h2>🎵 My Focus Playlist</h2>
+        <div class="glass-panel music-card">
+          <div class="panel-eyebrow"><i data-lucide="disc-3"></i> Playlist</div>
           <div class="category-chips" id="category-chips"></div>
 
           <div class="player">
-            <div class="now-playing-visual" id="np-visual"><span class="np-note">♪</span></div>
+            <div class="now-playing-visual" id="np-visual"><i data-lucide="music-2" class="np-note"></i></div>
             <div class="eq" id="eq"><span></span><span></span><span></span><span></span><span></span></div>
             <div class="now-playing">
               <strong id="now-title">Select a track</strong>
@@ -236,9 +283,9 @@
             <input type="range" id="seek" value="0" min="0" max="100" step="0.1" class="seek" aria-label="Seek">
             <div class="time-row"><span id="time-cur">0:00</span><span id="time-dur">0:00</span></div>
             <div class="controls">
-              <button id="btn-prev" class="round-btn" title="Previous" aria-label="Previous track">⏮</button>
-              <button id="btn-play" class="round-btn play" title="Play/Pause" aria-label="Play or pause">▶</button>
-              <button id="btn-next" class="round-btn" title="Next" aria-label="Next track">⏭</button>
+              <button id="btn-prev" class="round-btn" title="Previous" aria-label="Previous track"><i data-lucide="skip-back"></i></button>
+              <button id="btn-play" class="round-btn play" title="Play/Pause" aria-label="Play or pause"><i data-lucide="play"></i></button>
+              <button id="btn-next" class="round-btn" title="Next" aria-label="Next track"><i data-lucide="skip-forward"></i></button>
               <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7" title="Volume" aria-label="Volume">
             </div>
           </div>
@@ -254,29 +301,30 @@
         <audio id="audio" preload="metadata"></audio>
       </section>
 
-      <!-- ---------- TARGETS ---------- -->
-      <section class="tab-panel" id="tab-targets" aria-label="Targets">
-        <div class="card">
-          <h2>◎ Targets</h2>
-          <p class="card-desc">Longer-term objectives — set one, track progress toward it.</p>
-          <form id="target-form" class="planner-form-row" style="margin-top:10px">
-            <input type="text" id="target-name" placeholder="e.g. Finish Class 11 Physics Mechanics" required>
-            <input type="number" id="target-minutes" placeholder="Time limit (minutes)" min="1" required aria-label="Time limit in minutes">
-            <button type="submit" class="btn primary-btn">Set Target</button>
+      <!-- ---------- MISSIONS ---------- -->
+      <section class="tab-panel" id="tab-targets" aria-label="Missions">
+        <div class="glass-panel">
+          <div class="panel-eyebrow"><i data-lucide="rocket"></i> New Mission</div>
+          <p class="card-desc">Longer-term objectives — set one, break it into steps, track progress toward the deadline.</p>
+          <form id="target-form" class="stack-form" style="margin-top:10px">
+            <input type="text" id="target-name" placeholder="Mission title (e.g. Master Mechanics)" required>
+            <input type="date" id="target-deadline" required aria-label="Deadline">
+            <textarea id="target-items" rows="2" placeholder="Steps, one per line (e.g. Newton's Laws&#10;Kinematics&#10;50 practice problems)"></textarea>
+            <button type="submit" class="btn primary-btn" style="width:fit-content">Launch Mission</button>
           </form>
           <div id="target-list" class="target-list"></div>
         </div>
       </section>
 
-      <!-- ---------- DAILY GOALS ---------- -->
-      <section class="tab-panel" id="tab-goals" aria-label="Daily Goals">
-        <div class="card">
+      <!-- ---------- TODAY'S OBJECTIVES ---------- -->
+      <section class="tab-panel" id="tab-goals" aria-label="Today's Objectives">
+        <div class="glass-panel">
           <div class="goal-header-row">
-            <h2>☑ Today's Goals</h2>
+            <div class="panel-eyebrow" style="margin:0"><i data-lucide="check-square"></i> Today's Objectives</div>
             <span class="badge" id="goal-count-badge">0/0</span>
           </div>
           <form id="goal-form" class="stack-form-row" style="margin-top:10px">
-            <input type="text" id="goal-text" placeholder="Add something to do today&hellip;" required aria-label="New goal">
+            <input type="text" id="goal-text" placeholder="Add something to do today&hellip;" required aria-label="New objective">
             <button type="submit" class="btn primary-btn small">Add</button>
           </form>
           <div class="goal-progress"><div class="goal-progress-bar" id="goal-progress-bar"></div></div>
@@ -286,38 +334,51 @@
 
       <!-- ---------- PROGRESS ---------- -->
       <section class="tab-panel" id="tab-progress" aria-label="Progress">
-        <div class="card">
-          <h2>Overall Progress</h2>
+        <div class="glass-panel">
+          <div class="panel-eyebrow"><i data-lucide="orbit"></i> Your Study Universe</div>
+          <p class="card-desc">Each planet is a subject — closer to the core means its exam is sooner. Click one to jump to it. Warmer color means it needs more attention.</p>
+        </div>
+        <div class="glass-panel">
+          <div class="panel-eyebrow"><i data-lucide="telescope"></i> Orbit Insights</div>
+          <div id="insights-body"></div>
+          <button class="btn ghost-btn small" id="optimize-week-btn" style="margin-top:10px">Optimize My Week</button>
+        </div>
+        <div class="glass-panel">
+          <div class="panel-eyebrow">Overall Progress</div>
           <div class="target-bar-track" style="height:8px"><div class="target-bar-fill" id="progress-overall-bar" style="width:0%"></div></div>
           <p class="muted" id="progress-overall-label" style="margin-top:8px">0/0 topics complete</p>
           <p id="progress-streak" style="font-family:var(--font-display);font-size:1.1rem;margin-top:6px">🔥 0 day streak</p>
         </div>
         <div class="panel-grid">
-          <div class="card">
-            <h2>Weekly Activity</h2>
+          <div class="glass-panel">
+            <div class="panel-eyebrow">Weekly Activity</div>
             <p class="card-desc">Days you studied in the last 7 days.</p>
             <div class="chart-row" id="chart-weekly"></div>
           </div>
-          <div class="card">
-            <h2>Subject Distribution</h2>
+          <div class="glass-panel">
+            <div class="panel-eyebrow">Subject Distribution</div>
             <p class="card-desc">Share of topics per subject.</p>
             <div id="chart-distribution"></div>
           </div>
         </div>
-        <div class="card">
-          <h2>Per-Subject Progress</h2>
+        <div class="glass-panel">
+          <div class="panel-eyebrow">Achievements</div>
+          <div id="achievements-body" class="achievements-grid"></div>
+        </div>
+        <div class="glass-panel">
+          <div class="panel-eyebrow">Per-Subject Progress</div>
           <div id="progress-subjects" class="target-list"></div>
         </div>
-        <div class="card">
-          <h2>Time Analytics</h2>
+        <div class="glass-panel">
+          <div class="panel-eyebrow">Time Analytics</div>
           <div id="progress-time-table"></div>
         </div>
       </section>
 
       <!-- ---------- SETTINGS ---------- -->
       <section class="tab-panel" id="tab-settings" aria-label="Settings">
-        <div class="card">
-          <h2>🧑‍🎓 Profile</h2>
+        <div class="glass-panel">
+          <div class="panel-eyebrow"><i data-lucide="user"></i> Profile</div>
           <p class="card-desc">Shown in your greeting and around the app. Stored only in this browser.</p>
           <form id="profile-form" class="stack-form" style="margin-top:10px">
             <label for="profile-name-input">Display name</label>
@@ -328,26 +389,22 @@
           </form>
         </div>
 
-        <div class="card">
-          <h2>⚙️ AI Connection <span class="badge" id="ai-status-badge">Not connected</span></h2>
-          <p class="card-desc">Orbit works fully offline out of the box. To let the Doubt Solver and Planner use a real online AI model, add your own API details below. Your key is stored only in this browser and never sent anywhere except the endpoint you configure.</p>
+        <div class="glass-panel">
+          <div class="panel-eyebrow"><i data-lucide="server"></i> Orbit AI Connection <span class="badge" id="ai-status-badge">○ Not connected</span></div>
+          <p class="card-desc" id="ai-status-detail">Orbit works fully offline out of the box. To connect a real AI model, deploy the included backend (see <code>backend/BACKEND.md</code>) and paste its URL below — your API key lives only on that server, never in this browser or in the repository.</p>
           <form id="settings-form" class="stack-form" style="margin-top:10px">
-            <label for="api-endpoint">API Endpoint (OpenAI-compatible <code>/chat/completions</code>)</label>
-            <input type="url" id="api-endpoint" placeholder="https://api.openai.com/v1/chat/completions">
-            <label for="api-model">Model name</label>
-            <input type="text" id="api-model" placeholder="e.g. gpt-4o-mini">
-            <label for="api-key">API Key</label>
-            <input type="password" id="api-key" placeholder="sk-&hellip;">
+            <label for="backend-url">Backend URL</label>
+            <input type="url" id="backend-url" placeholder="https://your-orbit-backend.onrender.com">
             <div class="planner-form-row">
-              <button type="submit" class="btn primary-btn">Save</button>
-              <button type="button" class="btn ghost-btn" id="clear-api-btn">Clear</button>
+              <button type="submit" class="btn primary-btn">Connect</button>
+              <button type="button" class="btn ghost-btn" id="clear-api-btn">Disconnect</button>
             </div>
           </form>
         </div>
 
-        <div class="card">
-          <h2>ℹ️ About Orbit</h2>
-          <p class="muted">Orbit is a no-code-friendly, browser-based AI study agent built with HTML, CSS and JavaScript for a school Work Education activity. All data (goals, targets, pins, subjects, plans) is saved locally in your browser using <code>localStorage</code> &mdash; nothing is uploaded anywhere unless you connect an AI key yourself.</p>
+        <div class="glass-panel">
+          <div class="panel-eyebrow"><i data-lucide="info"></i> About Orbit</div>
+          <p class="muted">Orbit is a browser-based AI study agent built with HTML, CSS, JavaScript and Three.js for a school Work Education activity, with a small Node/Express backend that keeps the AI key off the frontend. All study data (goals, missions, pins, subjects, plans) is saved locally in your browser using <code>localStorage</code> &mdash; nothing is uploaded anywhere except AI requests, which go only to your own backend.</p>
         </div>
       </section>
 
@@ -378,8 +435,16 @@
   </div>
 </div>
 
+<!-- Quiz modal -->
+<div class="modal-backdrop" id="quiz-modal-backdrop" hidden>
+  <div class="modal" role="dialog" aria-labelledby="quiz-modal-title" style="width:min(90vw,480px)">
+    <h2 id="quiz-modal-title">🧪 Quick Check</h2>
+    <div id="quiz-body"></div>
+  </div>
+</div>
+
 <script src="js/theme.js"></script>
-<script src="js/starfield.js"></script>
+<script src="js/scene3d.js"></script>
 <script src="js/clock.js"></script>
 <script src="js/store.js"></script>
 <script src="js/aibridge.js"></script>
@@ -389,6 +454,11 @@
 <script src="js/subjects.js"></script>
 <script src="js/analytics.js"></script>
 <script src="js/srs.js"></script>
+<script src="js/recommendation.js"></script>
+<script src="js/knowledgemap.js"></script>
+<script src="js/quiz.js"></script>
+<script src="js/focussession.js"></script>
+<script src="js/achievements.js"></script>
 <script src="js/planner.js"></script>
 <script src="js/doubtsolver.js"></script>
 <script src="js/music.js"></script>
