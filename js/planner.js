@@ -49,7 +49,7 @@ const Planner = (() => {
       const active = subjects.filter(s => daysLeftFrom(date, s.examDate) >= 0);
       if (active.length === 0) continue;
 
-      const totalMinutes = OrbitCalendar.freeMinutesOnDate(date, 8, 22, studyMinutesDefault);
+      const totalMinutes = studyMinutesDefault;
       const urgencies = active.map(s => 1 / (daysLeftFrom(date, s.examDate) + 1));
       const totalUrgency = urgencies.reduce((a, b) => a + b, 0);
 

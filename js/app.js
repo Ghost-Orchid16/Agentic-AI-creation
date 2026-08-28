@@ -49,7 +49,6 @@
     Starfield.init();
     Clock.init();
     Quotes.init();
-    OrbitCalendar.init();
     Pins.init();
     Targets.init();
     Goals.init();

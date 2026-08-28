@@ -1,6 +1,6 @@
 # 🪐 Orbit — Study Planner AI Agent
 
-Orbit is a browser-based AI study agent built for a school **Work Education** activity (IT subject). It plans study time across *all* your subjects at once, solves doubts instantly, plays focus music (including searching any song on demand), syncs around your Google Calendar, and tracks your progress — all in one dynamic, themeable dashboard.
+Orbit is a browser-based AI study agent built for a school **Work Education** activity (IT subject). It plans study time across *all* your subjects at once, solves doubts instantly, plays focus music (including searching any song on demand), and tracks your progress — all in one dynamic, themeable dashboard.
 
 Built with plain **HTML, CSS and JavaScript** (no framework, no build step, no C/C++/Java), so it runs directly in any browser and can be hosted online for free with GitHub Pages.
 
@@ -14,7 +14,6 @@ Built with plain **HTML, CSS and JavaScript** (no framework, no build step, no C
   - **Summary** and **Flowchart** views auto-generated from your plan.
 - **Instant Doubt Solver** — a chat panel that solves maths expressions and common study questions offline, and can optionally call a real online AI model for full answers.
 - **Search & play any song** — a built-in YouTube-powered search box plays music instantly through YouTube's own embedded player (nothing downloads), plus a separate custom playlist for direct audio links.
-- **Google Calendar sync (optional)** — connect your calendar so Orbit plans study time around your real classes and work, using your actual free time instead of a flat daily minute count.
 - **Exam Countdown Mode** — a live, second-by-second countdown banner for your nearest pinned exam that turns urgent (and pulses) inside the final 3 days.
 - **Pinned Reminders** — creative countdown pins (e.g. "Exam in 3 days") that change color and pulse as the date gets closer.
 - **Progress Dashboard** — overall and per-subject completion bars, a study streak counter, and a planned-vs-actual time table.
@@ -23,7 +22,7 @@ Built with plain **HTML, CSS and JavaScript** (no framework, no build step, no C
 - **A different motivational quote** every time you open Orbit.
 - **Creative "Orbit" clock** — a glowing core with three dots orbiting it like planets (hour/minute/second), instead of a plain clock face.
 - **Dynamic, theme-aware backgrounds** — an animated `<canvas>` scene that changes with *both* the tab you're on and the theme you pick: a solar system on the Dashboard, a black hole on the Study Planner, a star cluster on Doubt Solver, a meteor shower on Music, orbit rings on Progress, and a wormhole on Settings — all in the Cosmos/Nebula themes. Switch to **Forest** and it becomes a firefly-lit treeline; **Ocean** becomes rising bubbles and waves; **Sunset** becomes drifting embers under a warm glow. 5 themes total, remembered per browser.
-- **Works fully offline by default**, with optional online AI, Calendar, and music search for when you're connected.
+- **Works fully offline by default**, with optional online AI and music search for when you're connected.
 
 ## 🚀 Running it
 
@@ -59,19 +58,6 @@ Two genuinely free options (no credit card):
 
 Your key is stored only in your browser's `localStorage` — never sent anywhere except the endpoint you configured.
 
-## 📅 Connecting Google Calendar (optional)
-
-This needs a free OAuth Client ID from your own Google Cloud project (Orbit can't create one for you — Google requires it to be tied to your own account):
-
-1. Go to `console.cloud.google.com`, create a project (or use an existing one).
-2. **APIs & Services → Library** → enable the **Google Calendar API**.
-3. **APIs & Services → OAuth consent screen** → set it up as **External**, add your own Google account as a **Test user** (this keeps it free and avoids Google's app-review process).
-4. **APIs & Services → Credentials → Create Credentials → OAuth client ID** → Application type **Web application**.
-5. Under **Authorized JavaScript origins**, add both `http://localhost:8000` (for local testing) and your GitHub Pages URL (e.g. `https://<your-username>.github.io`).
-6. Copy the generated **Client ID** into Orbit's **Settings → Google Calendar** field, then click **Connect Google Calendar**.
-
-Orbit only requests read-only calendar access and uses it purely to find free time blocks for studying.
-
 ## 🗂️ Project structure
 
 ```
@@ -84,7 +70,6 @@ js/
   quotes.js             Daily motivational quote picker
   store.js               localStorage helper + activity/streak tracking
   aibridge.js             Optional online-AI connector (OpenAI-compatible)
-  calendar.js             Google Calendar OAuth + free/busy time lookup
   pins.js                 Pinned exam/assignment/event reminders
   targets.js              "Target" cards with countdown progress bars
   goals.js                Daily goal checklist

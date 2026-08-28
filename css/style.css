@@ -473,10 +473,6 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 .review-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
 .review-item:last-child { border-bottom: none; }
 
-/* ---------- Calendar widget ---------- */
-.cal-events { list-style: none; padding: 0; margin: 10px 0 0; font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px; }
-.cal-events li { border-bottom: 1px solid var(--border); padding-bottom: 6px; }
-
 /* ---------- YouTube search embed ---------- */
 .yt-embed-wrap { margin-top: 14px; }
 .yt-embed-wrap iframe { width: 100%; aspect-ratio: 16/9; border: 1px solid var(--border); border-radius: 12px; display: block; margin-bottom: 6px; }

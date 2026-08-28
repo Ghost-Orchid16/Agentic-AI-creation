@@ -97,8 +97,6 @@
           <div id="dash-pins" class="dash-pins"></div>
         </div>
 
-        <div class="card" id="calendar-today-widget" hidden></div>
-
         <div class="card">
           <h2>🎯 Today's Target</h2>
           <form id="target-form" class="stack-form">
@@ -142,7 +140,6 @@
           <button type="button" class="primary-btn" id="planner-generate-btn">Generate / Refresh Plan</button>
           <button type="button" class="ghost-btn" id="planner-ai-btn">✨ Get AI tips for today</button>
         </div>
-        <p class="muted" style="margin-top:8px">If you connect Google Calendar in Settings, Orbit uses your real free time instead of a flat daily minute count.</p>
         <div class="ai-tip-box" id="planner-ai-tip" hidden></div>
       </div>
 
@@ -259,20 +256,8 @@
       </div>
 
       <div class="card">
-        <h2>📅 Google Calendar (optional)</h2>
-        <p class="muted">Connect your Google Calendar so Orbit plans study time around your classes and work &mdash; it only reads busy/free times, never your event details beyond that. Requires a free Google Cloud OAuth Client ID (see README for setup steps). Nothing is sent anywhere except Google's own API.</p>
-        <label>Google OAuth Client ID</label>
-        <input type="text" id="calendar-client-id" placeholder="xxxxxxxxxx.apps.googleusercontent.com">
-        <div class="planner-form-row" style="margin-top:10px">
-          <button type="button" class="primary-btn" id="calendar-connect-btn">Connect Google Calendar</button>
-          <button type="button" class="ghost-btn" id="calendar-disconnect-btn">Disconnect</button>
-        </div>
-        <p class="badge" id="calendar-status" style="margin-top:10px;display:inline-block">Not connected.</p>
-      </div>
-
-      <div class="card">
         <h2>ℹ️ About Orbit</h2>
-        <p class="muted">Orbit is a no-code-friendly, browser-based AI study agent built with HTML, CSS and JavaScript for a school Work Education activity. All data (goals, targets, pins, subjects, plans) is saved locally in your browser using <code>localStorage</code> &mdash; nothing is uploaded anywhere unless you connect an AI key or Google Calendar yourself.</p>
+        <p class="muted">Orbit is a no-code-friendly, browser-based AI study agent built with HTML, CSS and JavaScript for a school Work Education activity. All data (goals, targets, pins, subjects, plans) is saved locally in your browser using <code>localStorage</code> &mdash; nothing is uploaded anywhere unless you connect an AI key yourself.</p>
       </div>
     </section>
 
@@ -305,7 +290,6 @@
 <script src="js/quotes.js"></script>
 <script src="js/store.js"></script>
 <script src="js/aibridge.js"></script>
-<script src="js/calendar.js"></script>
 <script src="js/pins.js"></script>
 <script src="js/targets.js"></script>
 <script src="js/goals.js"></script>
