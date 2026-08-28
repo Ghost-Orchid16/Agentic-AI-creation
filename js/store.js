@@ -47,6 +47,27 @@ const Store = (() => {
   function studyMinutesOn(dateStr) {
     return get('orbit_daily_minutes', {})[dateStr] || 0;
   }
+  function logSubjectStudyMinutes(subjectId, minutes) {
+    if (!minutes) return;
+    const key = 'orbit_subject_daily_minutes';
+    const map = get(key, {});
+    const today = todayKey();
+    map[today] = map[today] || {};
+    map[today][subjectId] = (map[today][subjectId] || 0) + minutes;
+    set(key, map);
+  }
+  function subjectMinutesInRange(subjectId, days) {
+    const map = get('orbit_subject_daily_minutes', {});
+    const cursor = new Date();
+    let total = 0;
+    for (let i = 0; i < days; i++) {
+      const d = new Date(cursor);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      total += (map[key] && map[key][subjectId]) || 0;
+    }
+    return total;
+  }
   function last7Days() {
     const out = [];
     const cursor = new Date();
@@ -57,5 +78,5 @@ const Store = (() => {
     }
     return out;
   }
-  return { get, set, uid, todayKey, logActivity, currentStreak, logStudyMinutes, studyMinutesOn, last7Days };
+  return { get, set, uid, todayKey, logActivity, currentStreak, logStudyMinutes, studyMinutesOn, last7Days, logSubjectStudyMinutes, subjectMinutesInRange };
 })();

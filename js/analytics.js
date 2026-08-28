@@ -10,7 +10,7 @@ const Analytics = (() => {
         if (activeTimers[key]) {
           clearInterval(activeTimers[key].handle);
           const elapsedMin = Math.round((Date.now() - activeTimers[key].start) / 60000);
-          if (elapsedMin > 0) { Subjects.addMinutes(btn.dataset.subject, btn.dataset.topic, elapsedMin); Store.logStudyMinutes(elapsedMin); }
+          if (elapsedMin > 0) { Subjects.addMinutes(btn.dataset.subject, btn.dataset.topic, elapsedMin); Store.logStudyMinutes(elapsedMin); Store.logSubjectStudyMinutes(btn.dataset.subject, elapsedMin); }
           delete activeTimers[key];
           btn.textContent = '⏱ Start';
           btn.classList.remove('timer-running');

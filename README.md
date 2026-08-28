@@ -1,91 +1,95 @@
 # 🪐 Orbit — Your AI Study Universe
 
-Orbit is a premium, browser-based AI study command center built for a school **Work Education** activity (IT subject). It plans study time across *all* your subjects at once, explains its own reasoning, solves doubts instantly, plays focus music (including searching any song on demand), and tracks your progress — in a restrained, dark-cosmic dashboard designed to feel like a real product, not a demo.
+Orbit is an AI study command center built for a school **Work Education** activity (IT subject). It treats studying as a small solar system: **subjects are planets**, closer to the core when their exam is sooner and warmer-colored when they need attention; **Orbit's Analysis** engine reasons over your real data — exam dates, topic priority, difficulty, time available — to recommend exactly what to study next and why; and a full agent loop (input → reasoning → action → feedback → adaptation) runs through every page, not just the planner.
 
-Built with plain **HTML, CSS and JavaScript** (no framework, no build step, no C/C++/Java), so it runs directly in any browser and can be hosted online for free with GitHub Pages.
+Built with **HTML, CSS, JavaScript and Three.js** on the frontend (no framework, no build step — deploys free on GitHub Pages), plus a small **Node/Express backend** that holds your AI API key server-side so it's never exposed in the browser or the repo.
 
 ## ✨ Features
 
-- **Multi-subject AI Study Planner** — add every subject you have an exam for. Orbit plans them *together*: subjects with a closer exam automatically get more of each day's study time, and a subject switches to pure revision on its last day. A **"How Orbit Thinks"** panel explains the reasoning in plain language for whichever mode applies — Last-Day Mode (≤1 day left), Learn → Practice → Revise (2–6 days), or Learn → Practice → Review → Spaced Revision → Mock Test (7+ days).
-  - **Task breakdown** — each topic gets an estimated time, split into Pomodoro-style study/break sessions.
-  - **Smart rescheduling** — the plan regenerates live from whatever's still unfinished, so a missed day rolls forward automatically.
-  - **Spaced repetition** — rating a topic "hard" on completion schedules review reminders (1/3/7/16 days later) in the sidebar Review Queue.
-  - **Urgency/Difficulty Matrix**, an auto **Summary**, and a real node-and-arrow **Flowchart** (SVG) of your plan.
-  - **AI Topic Summary** — pick any topic and generate key points, formulas and common mistakes (falls back gracefully offline).
-- **Instant Doubt Solver** — a chat interface with suggested prompts, copy/regenerate on any answer, code-block formatting, and an offline fallback engine when no AI key is connected.
-- **Search & play any song** — a YouTube-powered search box plays instantly through YouTube's own embedded player, plus a categorized playlist (Deep Focus / Lo-Fi / Ambient / Classical / Nature) for direct audio links.
-- **Dashboard** — a personal greeting, a live stat row (study time, streak, tasks, next exam), a mission-style exam countdown that escalates through four visual states as the date nears, a clock-time-sequenced "Today's Plan" timeline, and one-click quick actions.
-- **Targets** (long-term goals with deadlines, editable, progress-tracked) and **Daily Goals** (a checklist with completion animation) as their own dedicated pages.
-- **Progress** — overall + per-subject completion, a weekly activity chart, a subject-distribution chart, a study streak, and a planned-vs-actual time table.
-- **Profile** — a name and avatar shown in your greeting and the sidebar, stored locally.
-- **5 themes** (Cosmos, Nebula, Ocean, Forest, Sunset) with restrained, theme-aware animated backgrounds — space scenes (solar system, black hole, star cluster, meteor shower, orbit rings, wormhole) that change per tab in the space themes, and a firefly treeline / bubbling waves / drifting embers world for Forest / Ocean / Sunset.
-- **Fully responsive** — the sidebar becomes a slide-in drawer on mobile, the topbar collapses, and every page reflows rather than just shrinking.
-- **Works fully offline by default**, with optional online AI and music search when you're connected. Nothing is lost on refresh — everything persists in `localStorage`.
+**Command Center (dashboard)**
+- A personal greeting and "Your Next Mission" hero pulled from your nearest pinned exam.
+- **Orbit's Analysis** — the single best topic to study right now, computed from exam urgency, topic priority and your difficulty ratings, with a plain-language reason and a one-click **Start Recommended Session**.
+- **Orbit's Briefing** — exam pressure (High/Medium/Low) per subject, today's priority, and available study time.
+- **Exam Radar** — every subject's urgency at a glance, click through to plan it.
+- **Crunch Mode** — automatically appears when an exam is ≤1 day away, splitting remaining topics into Must Know / Should Know / If Time Remains.
+- A clock-time-sequenced **Today's Plan** timeline and one-click quick actions.
+
+**Study Planner** — add every subject you have an exam for; Orbit plans them *together*, giving more of each day to whichever exam is closer. Includes a **"How Orbit Thinks"** panel narrating the active mode (Last-Day Mode / Learn→Practice→Revise / the full 7+-day spaced pattern), Pomodoro task breakdown, smart self-rescheduling, spaced repetition, an urgency/difficulty Matrix, an auto Summary, a real SVG node-and-arrow Flowchart, an AI Topic Summary generator, and a **Knowledge Map** (✓ mastered / ◐ learning / ○ not started / ● weak) you can click into.
+
+**AI Tutor** — a chat tutor with a context panel (pick the subject/topic you're on), **Socratic Mode** (guides with questions instead of answers), photo-of-a-problem upload for vision-capable models, suggested actions (Explain simply, Step-by-step, **Quiz me**, Find my mistake…), copy/regenerate on any answer, and code-block formatting.
+
+**Focus Lab** — a standalone 25-minute **Focus Session** timer tied to a real topic (auto-fills from Orbit's recommendation), a categorized playlist (Deep Focus / Lo-Fi / Ambient / Classical / Nature), and a YouTube-powered search-and-play box.
+
+**Missions** (long-term goals) — a title, a deadline, and a checklist of steps, with live % complete and a mission-complete celebration. **Today's Objectives** (daily checklist) rounds out personal tracking.
+
+**Progress** — your subjects rendered as an interactive 3D **Study Universe**, **Orbit Insights** (real week-over-week deltas — "Physics study time up 18%", not fabricated praise), a weekly activity chart, subject distribution, and meaningful **Achievements** computed from your actual history.
+
+**5 environments** (Cosmos, Nebula, Ocean, Forest, Sunset) — a real, continuously-rendered Three.js scene (not a static wallpaper): starfield + nebula dust, a pulsing Orbit Core, and — on the Command Center and Progress pages — clickable subject planets, all reduced-motion- and low-power-aware.
 
 ## 🚀 Running it
 
-No installation needed — it's static HTML/CSS/JS.
-
-**Locally:**
+**Frontend (static, no build step):**
 ```bash
-# from the project folder
 python3 -m http.server 8000
-# then open http://localhost:8000 in your browser
+# then open http://localhost:8000
 ```
-Or just double-click `index.html` (some browsers restrict `localStorage`/fonts on `file://`, so a local server is recommended).
+Or just double-click `index.html`. Free hosting: push to GitHub, enable **Settings → Pages** (public repo, or GitHub Pro/Team for private), source = `main` branch, root folder.
 
-**Free online hosting (GitHub Pages):**
-1. Push this repo to GitHub (already done if you're reading this from the repo). Pages requires either a **public** repo, or GitHub Pro/Team/Enterprise for a private one.
-2. Go to **Settings → Pages** in the repository.
-3. Set **Source** to the `main` branch (or the branch you're using), root folder.
-4. Your site will be live at `https://<your-username>.github.io/<repo-name>/`.
+**Backend (optional, for real AI):** see [`backend/BACKEND.md`](backend/BACKEND.md) — a few minutes to deploy free on Render.
 
-## 🔌 Connecting a real online AI (optional)
+## 🔌 Connecting real AI
 
-By default, Orbit's Doubt Solver, Planner and AI Summary run on a built-in offline engine, so the whole app works with **zero setup and no internet dependency** — good for a live classroom demo. The Settings page shows a clear "Connected" / "Not connected" badge without ever exposing your key.
+Orbit works fully offline out of the box (maths solving, the whole recommendation/planning engine, everything except free-text chat and AI-generated summaries/quizzes). To connect a real model:
 
-Two genuinely free options (no credit card):
+1. Deploy `backend/` (see `backend/BACKEND.md`) to a free host like Render, with your own API key from an OpenAI-compatible provider (Google AI Studio's Gemini and Groq both have genuinely free tiers) set as a **server-side** environment variable.
+2. In Orbit's **Settings** tab, paste your backend's URL.
 
-**Google AI Studio (Gemini):**
-1. Go to `aistudio.google.com`, sign in, click **Get API key → Create API key**.
-2. In Orbit's **Settings** tab: Endpoint = `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`, Model = `gemini-2.0-flash`, paste your key, **Save**.
+Your API key lives only on that backend — never in the browser, never in `localStorage`, never in this repository. Settings shows a clear **● Orbit AI Online** / **○ AI connection unavailable** status, and every AI feature (Doubt Solver, AI Summary, planner tips, Quiz) fails gracefully to an honest offline message rather than faking a response when AI isn't connected.
 
-**Groq:**
-1. Go to `console.groq.com`, sign up, create an API key.
-2. In Orbit's Settings: Endpoint = `https://api.groq.com/openai/v1/chat/completions`, Model = `llama-3.1-8b-instant`, paste your key, **Save**.
+## 🎨 Environment / asset strategy
 
-Your key is stored only in your browser's `localStorage` — never sent anywhere except the endpoint you configured, and never hard-coded in the source.
+All visuals — the starfield, nebula dust, the Orbit Core, subject planets, and each theme's motif (rising ocean particles, forest fireflies, drifting sunset embers) — are procedurally generated in `js/scene3d.js` with Three.js. No photographic or third-party image assets are used, so there are no licensing concerns to track. External libraries loaded via CDN: [Three.js](https://threejs.org/) (MIT license) for the 3D scene, [Lucide](https://lucide.dev/) (ISC license) for the icon system.
 
 ## 🗂️ Project structure
 
 ```
-index.html             App shell: sidebar nav, topbar, and every page
-css/style.css           Design tokens (5 themes), components, responsive layout
+index.html               App shell: sidebar nav, topbar, every page
+css/style.css              Design tokens (5 themes), glass panels, responsive layout
+backend/                  Node/Express AI proxy (see BACKEND.md) — separate deployment
 js/
-  theme.js              Theme switching + persistence
-  starfield.js           Animated canvas scenes: per-tab structures + per-theme motifs
-  clock.js              The compact orbiting-dots clock in the topbar
-  store.js                localStorage helper + activity/streak/study-time tracking
-  aibridge.js              Optional online-AI connector (OpenAI-compatible)
-  pins.js                  Pinned exam/assignment/event reminders
-  targets.js               Long-term "Target" cards with countdown progress + edit
-  goals.js                 Daily goal checklist
-  subjects.js               Subject/topic CRUD (the planner's data model)
-  analytics.js              Progress dashboard, time-tracking timers, difficulty matrix, charts
-  srs.js                   Spaced-repetition review queue
-  planner.js                Multi-subject plan generator, reasoning panel, AI summary, flowchart
-  doubtsolver.js            Chat-based doubt solver (offline + online), copy/regenerate/prompts
-  music.js                  Playlist + categories + YouTube search-and-play
-  settings.js               AI connection settings form
-  profile.js                 Display name + avatar
-  app.js                    Navigation, topbar, dashboard, exam countdown, app bootstrap
+  theme.js                Theme switching + persistence
+  scene3d.js                Three.js environment: starfield, core, subject planets
+  clock.js                 Compact orbiting-dots clock in the topbar
+  store.js                   localStorage helper + activity/streak/study-time tracking
+  aibridge.js                 Calls the backend's /api/chat — no key in the frontend
+  pins.js                     Pinned exam/assignment/event reminders
+  targets.js                  Missions: deadline + checklist, % complete
+  goals.js                    Today's Objectives (daily checklist)
+  subjects.js                  Subject/topic CRUD — the planner's core data model
+  analytics.js                 Progress charts, time-tracking timers, difficulty matrix
+  srs.js                      Spaced-repetition review queue
+  recommendation.js             Orbit's Analysis / Briefing / Exam Radar / Crunch Mode / Insights
+  knowledgemap.js               Per-subject topic tree with mastery states
+  quiz.js                      AI-generated quiz (honestly gated on a real AI connection)
+  focussession.js                Standalone Focus Session timer
+  achievements.js                Achievements computed from real state
+  planner.js                    Multi-subject plan generator, reasoning panel, flowchart
+  doubtsolver.js                 AI Tutor: chat, Socratic mode, image upload, context
+  music.js                      Focus Lab playlist + categories + YouTube search
+  settings.js                   Backend URL + AI status
+  profile.js                     Display name + avatar
+  app.js                        Navigation, dashboard rendering, app bootstrap
 ```
 
-## 🧠 How the planner thinks
+## 🧠 The agent loop
 
-Each topic gets an importance score: +2 for a trailing `*`, +1 for importance keywords (formula, theorem, law, definition, exam, PYQ, etc.), and a small penalty for very short lines. Across subjects, each active exam gets an "urgency" weight of `1 / (days left + 1)` — so a closer exam claims more of each day's study minutes automatically. A subject's last day before its exam becomes a forced revision day using its highest-weighted topics. Because the plan only ever pulls from topics not yet marked done, skipping a day requires no manual fix — the next generation simply carries those topics forward. The Study Planner's "How Orbit Thinks" panel narrates this reasoning live for your nearest exam.
+This is the concept the activity asks you to demonstrate, made literal in the product:
 
-This is the agent loop the activity asks you to demonstrate: **Input** (subjects, topics, exam dates, available time) → **Reasoning** (urgency, priority, difficulty, revision needs) → **Action** (schedule, priority topics, summaries, flowcharts, reminders) → **Feedback** (you complete tasks, ask doubts, rate difficulty) → **Adaptation** (the plan silently reflows around what's left).
+**Input** — subjects, topics, exam dates, available time, difficulty ratings, goals.
+**Reasoning** — `recommendation.js` scores every undone topic by exam urgency (`1/(daysLeft+1)`), importance weight, and difficulty; `planner.js` narrates the active strategy live in "How Orbit Thinks".
+**Action** — a day-by-day schedule, a single best-next-topic recommendation, AI summaries, a flowchart, reminders, Crunch Mode.
+**Feedback** — you complete sessions, ask doubts, take quizzes, rate difficulty.
+**Adaptation** — the plan and recommendation are recomputed live from whatever's still undone, so nothing needs manual re-planning; a poor quiz score bumps a topic to "weak" and queues it for revision automatically.
 
 ---
 

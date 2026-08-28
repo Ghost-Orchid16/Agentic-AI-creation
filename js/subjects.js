@@ -185,5 +185,16 @@ const Subjects = (() => {
     });
   }
 
-  return { init, load, daysLeft, addMinutes, setPlannedMinutes, toggleDone };
+  function summaries() {
+    return load().map(s => ({
+      id: s.id,
+      name: s.name,
+      examDate: s.examDate,
+      daysLeft: daysLeft(s.examDate),
+      topicCount: s.topics.length,
+      pct: s.topics.length ? Math.round((s.topics.filter(t => t.done).length / s.topics.length) * 100) : 0,
+    }));
+  }
+
+  return { init, load, daysLeft, addMinutes, setPlannedMinutes, toggleDone, summaries };
 })();

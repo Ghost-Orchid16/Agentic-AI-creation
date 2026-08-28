@@ -26,7 +26,11 @@ const Theme = (() => {
       el.style.background = t.preview;
       el.title = t.label;
       el.innerHTML = `<span>${t.label}</span>`;
-      el.addEventListener('click', () => apply(t.id));
+      el.addEventListener('click', () => {
+        apply(t.id);
+        const pop = document.getElementById('theme-popover');
+        if (pop) pop.hidden = true;
+      });
       grid.appendChild(el);
     });
     const saved = localStorage.getItem(KEY) || 'cosmos';
