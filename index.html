@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Orbit &mdash; Study Planner AI Agent</title>
-<meta name="description" content="An AI-assisted study planner, doubt solver, focus music player and goal tracker in one cosmic dashboard.">
+<meta name="description" content="An AI-assisted, multi-subject study planner, doubt solver, focus music player and goal tracker in one cosmic dashboard.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,15 +27,22 @@
       </div>
     </div>
 
-    <!-- Fancy clock -->
+    <!-- Fancy orbit clock -->
     <section class="widget clock-widget" aria-label="Clock">
-      <svg id="analog-clock" viewBox="0 0 200 200" class="analog-clock">
-        <circle class="clock-face" cx="100" cy="100" r="94"></circle>
-        <g class="clock-ticks" id="clock-ticks"></g>
-        <line id="hand-hour" class="hand hour" x1="100" y1="100" x2="100" y2="58"></line>
-        <line id="hand-min" class="hand minute" x1="100" y1="100" x2="100" y2="34"></line>
-        <line id="hand-sec" class="hand second" x1="100" y1="112" x2="100" y2="24"></line>
-        <circle cx="100" cy="100" r="5" class="clock-pin"></circle>
+      <svg viewBox="0 0 200 200" class="orbit-clock">
+        <defs>
+          <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="3.2" result="blur"></feGaussianBlur>
+            <feMerge><feMergeNode in="blur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+          </filter>
+        </defs>
+        <circle class="orbit-path" cx="100" cy="100" r="40"></circle>
+        <circle class="orbit-path" cx="100" cy="100" r="65"></circle>
+        <circle class="orbit-path" cx="100" cy="100" r="90"></circle>
+        <circle class="orbit-core" cx="100" cy="100" r="9" filter="url(#glow)"></circle>
+        <circle id="orbit-hour" class="orbit-dot hour" cx="100" cy="60" r="5" filter="url(#glow)"></circle>
+        <circle id="orbit-min" class="orbit-dot minute" cx="100" cy="35" r="4" filter="url(#glow)"></circle>
+        <circle id="orbit-sec" class="orbit-dot second" cx="100" cy="10" r="3" filter="url(#glow)"></circle>
       </svg>
       <div class="digital-time" id="digital-time">00:00:00</div>
       <div class="digital-date" id="digital-date">Loading date&hellip;</div>
@@ -55,6 +62,12 @@
       <div class="pin-list" id="pin-list"></div>
     </section>
 
+    <!-- Review queue (spaced repetition) -->
+    <section class="widget" aria-label="Review queue">
+      <h2 class="widget-title">🔁 Review Today</h2>
+      <div id="review-queue"></div>
+    </section>
+
   </aside>
 
   <!-- ============ MAIN ============ -->
@@ -65,19 +78,26 @@
       <button class="tab-btn" data-tab="planner">🧭 Study Planner</button>
       <button class="tab-btn" data-tab="doubt">💬 Doubt Solver</button>
       <button class="tab-btn" data-tab="music">🎵 Focus Music</button>
+      <button class="tab-btn" data-tab="progress">📊 Progress</button>
       <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
       <button class="hamburger" id="hamburger" aria-label="Toggle sidebar">☰</button>
     </nav>
 
     <!-- ---------- DASHBOARD ---------- -->
     <section class="tab-panel active" id="tab-dashboard">
+      <div class="card quote-card" id="quote-banner">Loading today's motivation&hellip;</div>
+
+      <div id="exam-countdown-hero" class="card exam-hero" hidden></div>
+
       <div class="panel-grid">
 
         <div class="card span-2">
           <h2>Welcome back 👋</h2>
-          <p class="muted">Here's your mission control for today. Set a target, tick off your goals, and let Orbit help you plan the rest.</p>
+          <p class="muted">Here's your mission control for today. Set a target, tick off your goals, and let Orbit plan the rest.</p>
           <div id="dash-pins" class="dash-pins"></div>
         </div>
+
+        <div class="card" id="calendar-today-widget" hidden></div>
 
         <div class="card">
           <h2>🎯 Today's Target</h2>
@@ -105,19 +125,25 @@
     <!-- ---------- STUDY PLANNER ---------- -->
     <section class="tab-panel" id="tab-planner">
       <div class="card">
-        <h2>🧭 AI Study Planner</h2>
-        <p class="muted">Paste your chapter / unit topics (one per line). Mark a must-do topic by ending the line with <code>*</code>. Tell Orbit how many days you have &mdash; it will decide what to study, and in what order.</p>
-        <form id="planner-form" class="planner-form">
-          <div class="planner-form-row">
-            <input type="text" id="planner-subject" placeholder="Subject / Chapter name (e.g. Physics - Electrostatics)" required>
-            <input type="number" id="planner-days" placeholder="Days left" min="1" max="60" required>
-          </div>
-          <textarea id="planner-topics" rows="6" placeholder="Coulomb's law *&#10;Electric field &amp; field lines&#10;Gauss's theorem *&#10;Electric dipole&#10;Potential energy&#10;Capacitors and combinations *"></textarea>
-          <div class="planner-form-row">
-            <button type="submit" class="primary-btn">Generate Plan</button>
-            <button type="button" class="ghost-btn" id="planner-ai-btn">✨ Refine with AI</button>
-          </div>
+        <h2>📚 Your Subjects</h2>
+        <p class="muted">Add every subject you have an exam for, with its topics. Orbit plans <strong>all of them together</strong> — giving more daily time to whichever exam is closer, and switching a subject to pure revision on its last day.</p>
+        <form id="subject-form" class="planner-form-row" style="margin-bottom:14px">
+          <input type="text" id="subject-name" placeholder="Subject name (e.g. Physics)" required>
+          <input type="date" id="subject-date" required>
+          <button type="submit" class="primary-btn">Add Subject</button>
         </form>
+        <div id="subjects-list"></div>
+      </div>
+
+      <div class="card">
+        <h2>🧭 Generate Master Plan</h2>
+        <div class="planner-form-row">
+          <input type="number" id="planner-minutes-per-day" placeholder="Study minutes/day (default 180)" min="30" value="180">
+          <button type="button" class="primary-btn" id="planner-generate-btn">Generate / Refresh Plan</button>
+          <button type="button" class="ghost-btn" id="planner-ai-btn">✨ Get AI tips for today</button>
+        </div>
+        <p class="muted" style="margin-top:8px">If you connect Google Calendar in Settings, Orbit uses your real free time instead of a flat daily minute count.</p>
+        <div class="ai-tip-box" id="planner-ai-tip" hidden></div>
       </div>
 
       <div class="card" id="planner-output" hidden>
@@ -125,10 +151,12 @@
           <button class="ptab-btn active" data-ptab="plan">📅 Day Plan</button>
           <button class="ptab-btn" data-ptab="summary">📝 Summary</button>
           <button class="ptab-btn" data-ptab="flow">🔀 Flowchart</button>
+          <button class="ptab-btn" data-ptab="matrix">🧩 Matrix</button>
         </div>
         <div class="ptab-panel active" id="ptab-plan"></div>
         <div class="ptab-panel" id="ptab-summary"></div>
         <div class="ptab-panel" id="ptab-flow"></div>
+        <div class="ptab-panel" id="ptab-matrix"></div>
       </div>
     </section>
 
@@ -150,8 +178,21 @@
     <!-- ---------- MUSIC ---------- -->
     <section class="tab-panel" id="tab-music">
       <div class="card music-card">
-        <h2>🎵 Focus Music Zone</h2>
-        <p class="muted">Study and listen, all in one place. Add your own track link any time.</p>
+        <h2>🔎 Search &amp; Play Any Song</h2>
+        <p class="muted">Search plays instantly through YouTube's own embedded player &mdash; nothing downloads to your device.</p>
+        <form id="yt-search-form" class="stack-form-row">
+          <input type="text" id="yt-search-input" placeholder="Search any song, artist or playlist&hellip;" required>
+          <button type="submit" class="primary-btn small">Search</button>
+        </form>
+        <div id="yt-embed-wrap" class="yt-embed-wrap" hidden>
+          <iframe id="yt-embed" src="" title="YouTube search results" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          <a id="yt-open-link" href="#" target="_blank" rel="noopener" class="muted" style="font-size:.8rem">Open full results on YouTube ↗</a>
+        </div>
+      </div>
+
+      <div class="card music-card">
+        <h2>🎵 My Focus Playlist</h2>
+        <p class="muted">A starter lo-fi playlist, plus any direct audio links you add.</p>
 
         <div class="player">
           <div class="eq" id="eq"><span></span><span></span><span></span><span></span><span></span></div>
@@ -180,6 +221,24 @@
       <audio id="audio" preload="metadata"></audio>
     </section>
 
+    <!-- ---------- PROGRESS ---------- -->
+    <section class="tab-panel" id="tab-progress">
+      <div class="card">
+        <h2>📊 Overall Progress</h2>
+        <div class="target-bar-track" style="height:14px"><div class="target-bar-fill" id="progress-overall-bar" style="width:0%"></div></div>
+        <p class="muted" id="progress-overall-label" style="margin-top:8px">0/0 topics complete</p>
+        <p id="progress-streak" style="font-family:var(--font-display);font-size:1.2rem">🔥 0 day streak</p>
+      </div>
+      <div class="card">
+        <h2>📚 Per-Subject Progress</h2>
+        <div id="progress-subjects" class="target-list"></div>
+      </div>
+      <div class="card">
+        <h2>⏱ Time Analytics</h2>
+        <div id="progress-time-table"></div>
+      </div>
+    </section>
+
     <!-- ---------- SETTINGS ---------- -->
     <section class="tab-panel" id="tab-settings">
       <div class="card">
@@ -198,9 +257,22 @@
           </div>
         </form>
       </div>
+
+      <div class="card">
+        <h2>📅 Google Calendar (optional)</h2>
+        <p class="muted">Connect your Google Calendar so Orbit plans study time around your classes and work &mdash; it only reads busy/free times, never your event details beyond that. Requires a free Google Cloud OAuth Client ID (see README for setup steps). Nothing is sent anywhere except Google's own API.</p>
+        <label>Google OAuth Client ID</label>
+        <input type="text" id="calendar-client-id" placeholder="xxxxxxxxxx.apps.googleusercontent.com">
+        <div class="planner-form-row" style="margin-top:10px">
+          <button type="button" class="primary-btn" id="calendar-connect-btn">Connect Google Calendar</button>
+          <button type="button" class="ghost-btn" id="calendar-disconnect-btn">Disconnect</button>
+        </div>
+        <p class="badge" id="calendar-status" style="margin-top:10px;display:inline-block">Not connected.</p>
+      </div>
+
       <div class="card">
         <h2>ℹ️ About Orbit</h2>
-        <p class="muted">Orbit is a no-code-friendly, browser-based AI study agent built with HTML, CSS and JavaScript for a school Work Education activity. All data (goals, targets, pins, plans) is saved locally in your browser using <code>localStorage</code> &mdash; nothing is uploaded anywhere.</p>
+        <p class="muted">Orbit is a no-code-friendly, browser-based AI study agent built with HTML, CSS and JavaScript for a school Work Education activity. All data (goals, targets, pins, subjects, plans) is saved locally in your browser using <code>localStorage</code> &mdash; nothing is uploaded anywhere unless you connect an AI key or Google Calendar yourself.</p>
       </div>
     </section>
 
@@ -230,11 +302,16 @@
 <script src="js/theme.js"></script>
 <script src="js/starfield.js"></script>
 <script src="js/clock.js"></script>
+<script src="js/quotes.js"></script>
 <script src="js/store.js"></script>
 <script src="js/aibridge.js"></script>
+<script src="js/calendar.js"></script>
 <script src="js/pins.js"></script>
 <script src="js/targets.js"></script>
 <script src="js/goals.js"></script>
+<script src="js/subjects.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/srs.js"></script>
 <script src="js/planner.js"></script>
 <script src="js/doubtsolver.js"></script>
 <script src="js/music.js"></script>

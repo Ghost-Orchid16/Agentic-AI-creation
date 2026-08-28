@@ -1,129 +1,29 @@
 const Planner = (() => {
-  const IMPORTANT_WORDS = [
-    'important', 'exam', 'formula', 'theorem', 'law', 'derivation', 'numerical',
-    'definition', 'diagram', 'pyq', 'weightage', 'proof', 'equation', 'must',
-    'key', 'concept', 'graph', 'reaction', 'mechanism'
-  ];
+  function estimatedMinutes(topic) { return 15 + topic.weight * 10; }
 
-  function parseTopics(raw) {
-    return raw
-      .split('\n')
-      .map(l => l.trim())
-      .filter(Boolean)
-      .map((line, idx) => {
-        let text = line;
-        let weight = 3;
-        if (text.endsWith('*')) {
-          weight += 2;
-          text = text.slice(0, -1).trim();
-        }
-        const lower = text.toLowerCase();
-        if (IMPORTANT_WORDS.some(w => lower.includes(w))) weight += 1;
-        if (text.length < 12) weight -= 1;
-        if (idx === 0) weight += 1;
-        weight = Math.max(1, Math.min(5, weight));
-        return { text, weight, order: idx };
-      });
-  }
-
-  function weightClass(w) {
-    if (w >= 4) return 'w-high';
-    if (w === 3) return 'w-mid';
-    return 'w-low';
-  }
-
-  function buildPlan(subject, days, topics) {
-    const sorted = [...topics].sort((a, b) => b.weight - a.weight || a.order - b.order);
-
-    if (days <= 1) {
-      const cutoff = Math.max(3, Math.ceil(topics.length * 0.45));
-      const mustDo = sorted.slice(0, cutoff).sort((a, b) => a.order - b.order);
-      return [{
-        title: `🚨 Day 1 (Today) — High-Yield Revision: ${subject}`,
-        topics: mustDo,
-        tip: 'Only 1 day left: skip anything not on this list. Do active recall (write from memory), not just re-reading. Solve 2-3 previous-year style questions per must-do topic, then take one full mock/self-test before you sleep.'
-      }];
+  function pomodoroSessions(minutes) {
+    if (minutes <= 30) return `${minutes}m focused study`;
+    const parts = [];
+    let remaining = minutes;
+    while (remaining > 0) {
+      const chunk = Math.min(25, remaining);
+      parts.push(`${chunk}m study`);
+      remaining -= chunk;
+      if (remaining > 0) parts.push('5m break');
     }
-
-    const revisionDay = {
-      title: `🔁 Day ${days} (Final Day) — Full Revision + Mock Test: ${subject}`,
-      topics: sorted.slice(0, Math.max(3, Math.ceil(topics.length * 0.5))).sort((a, b) => a.order - b.order),
-      tip: 'Rapid-fire revise everything, attempt a timed mock test, and only re-check topics you got wrong.'
-    };
-
-    const studyDays = days - 1;
-    const chronological = [...topics].sort((a, b) => a.order - b.order);
-    const chunkSize = Math.ceil(chronological.length / studyDays) || 1;
-    const dayPlans = [];
-    for (let i = 0; i < studyDays; i++) {
-      const chunk = chronological.slice(i * chunkSize, (i + 1) * chunkSize);
-      if (chunk.length === 0) continue;
-      const hasHigh = chunk.some(t => t.weight >= 4);
-      dayPlans.push({
-        title: `📘 Day ${i + 1} — ${subject}`,
-        topics: chunk,
-        tip: hasHigh
-          ? 'This day has must-do topics — start with those while your mind is fresh, then move to lighter ones.'
-          : 'Lighter load today — pair it with revising one topic from a previous day.'
-      });
-    }
-    dayPlans.push(revisionDay);
-    return dayPlans;
+    return parts.join(' → ');
   }
 
-  function renderPlan(dayPlans) {
-    const el = document.getElementById('ptab-plan');
-    el.innerHTML = '';
-    dayPlans.forEach(dp => {
-      const card = document.createElement('div');
-      card.className = 'day-card';
-      const chips = dp.topics.map(t =>
-        `<span class="topic-chip ${weightClass(t.weight)}">${escapeHtml(t.text)}</span>`
-      ).join('');
-      card.innerHTML = `<h3>${dp.title}</h3>${chips}<div class="tip">💡 ${dp.tip}</div>`;
-      el.appendChild(card);
-    });
+  function daysLeftFrom(dateStr, examDate) {
+    const d = new Date(dateStr + 'T00:00:00');
+    const e = new Date(examDate + 'T00:00:00');
+    return Math.round((e - d) / 86400000);
   }
 
-  function renderSummary(subject, topics) {
-    const el = document.getElementById('ptab-summary');
-    const sorted = [...topics].sort((a, b) => a.order - b.order);
-    const must = sorted.filter(t => t.weight >= 4);
-    el.innerHTML = `
-      <div class="summary-block">
-        <h3>${escapeHtml(subject)} — Quick Outline</h3>
-        <ul>${sorted.map(t => `<li><strong>${escapeHtml(t.text)}</strong>${t.weight >= 4 ? ' ⭐ must-do' : ''}</li>`).join('')}</ul>
-        ${must.length ? `<p class="muted">⭐ ${must.length} topic(s) flagged as must-do based on your <code>*</code> marks and keyword importance (formula, theorem, definition, etc.).</p>` : ''}
-      </div>
-    `;
-  }
-
-  function renderFlow(subject, dayPlans) {
-    const el = document.getElementById('ptab-flow');
-    el.innerHTML = '';
-    const wrap = document.createElement('div');
-    wrap.className = 'flowchart';
-    dayPlans.forEach((dp, i) => {
-      const node = document.createElement('div');
-      node.className = 'flow-node';
-      node.innerHTML = `<h4>${dp.title.replace(subject, '').trim()}</h4><p>${dp.topics.slice(0, 3).map(t => t.text).join(', ')}${dp.topics.length > 3 ? '&hellip;' : ''}</p>`;
-      wrap.appendChild(node);
-      if (i < dayPlans.length - 1) {
-        const arrow = document.createElement('div');
-        arrow.className = 'flow-arrow';
-        arrow.textContent = '⬇';
-        wrap.appendChild(arrow);
-      }
-    });
-    const finish = document.createElement('div');
-    finish.className = 'flow-arrow';
-    finish.textContent = '⬇';
-    wrap.appendChild(finish);
-    const exam = document.createElement('div');
-    exam.className = 'flow-node';
-    exam.innerHTML = `<h4>🎓 Exam Day</h4><p>Stay calm, trust your revision.</p>`;
-    wrap.appendChild(exam);
-    el.appendChild(wrap);
+  function addDays(dateStr, n) {
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setDate(d.getDate() + n);
+    return d.toISOString().slice(0, 10);
   }
 
   function escapeHtml(str) {
@@ -132,43 +32,156 @@ const Planner = (() => {
     return div.innerHTML;
   }
 
-  async function generate(useAI) {
-    const subject = document.getElementById('planner-subject').value.trim() || 'Study Plan';
-    const days = Math.max(1, parseInt(document.getElementById('planner-days').value, 10) || 1);
-    const raw = document.getElementById('planner-topics').value;
-    const topics = parseTopics(raw);
-    if (topics.length === 0) {
-      alert('Please add at least one topic.');
+  function weightClass(w) { return w >= 4 ? 'w-high' : w === 3 ? 'w-mid' : 'w-low'; }
+
+  function generateMasterPlan() {
+    const subjects = Subjects.load().filter(s => s.topics.length > 0);
+    const studyMinutesDefault = Math.max(30, parseInt(document.getElementById('planner-minutes-per-day').value, 10) || 180);
+    const today = Store.todayKey();
+    const horizon = Math.min(14, Math.max(1, ...subjects.map(s => Math.max(1, Subjects.daysLeft(s.examDate)))));
+
+    const cursors = {};
+    subjects.forEach(s => { cursors[s.id] = 0; });
+
+    const days = [];
+    for (let offset = 0; offset < horizon; offset++) {
+      const date = addDays(today, offset);
+      const active = subjects.filter(s => daysLeftFrom(date, s.examDate) >= 0);
+      if (active.length === 0) continue;
+
+      const totalMinutes = OrbitCalendar.freeMinutesOnDate(date, 8, 22, studyMinutesDefault);
+      const urgencies = active.map(s => 1 / (daysLeftFrom(date, s.examDate) + 1));
+      const totalUrgency = urgencies.reduce((a, b) => a + b, 0);
+
+      const blocks = [];
+      active.forEach((s, i) => {
+        const share = urgencies[i] / totalUrgency;
+        let minutesBudget = Math.round(share * totalMinutes);
+        const isFinalDay = daysLeftFrom(date, s.examDate) === 0;
+        const undone = s.topics.filter(t => !t.done);
+        if (undone.length === 0) return;
+
+        let pool;
+        if (isFinalDay) {
+          pool = [...undone].sort((a, b) => b.weight - a.weight);
+        } else {
+          pool = undone.slice(cursors[s.id]);
+        }
+
+        const chosen = [];
+        let used = 0;
+        for (const t of pool) {
+          if (used >= minutesBudget && chosen.length > 0) break;
+          const est = estimatedMinutes(t);
+          chosen.push({ ...t, plannedMinutes: est });
+          used += est;
+          if (!isFinalDay) cursors[s.id] += 1;
+          if (used >= minutesBudget) break;
+        }
+        if (chosen.length === 0) return;
+        chosen.forEach(t => Subjects.setPlannedMinutes(s.id, t.id, t.plannedMinutes));
+        blocks.push({ subjectId: s.id, subjectName: s.name, minutes: used, isFinalDay, topics: chosen });
+      });
+
+      if (blocks.length > 0) days.push({ date, blocks });
+    }
+    return days;
+  }
+
+  function renderDayPlan(days) {
+    const el = document.getElementById('ptab-plan');
+    el.innerHTML = '';
+    if (days.length === 0) {
+      el.innerHTML = '<p class="muted">Add at least one subject with topics and an exam date above, then hit Generate.</p>';
       return;
     }
+    days.forEach(d => {
+      const card = document.createElement('div');
+      card.className = 'day-card';
+      const dateLabel = new Date(d.date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+      card.innerHTML = `
+        <h3>${d.date === Store.todayKey() ? '📍 Today' : '📘'} ${dateLabel}</h3>
+        ${d.blocks.map(b => `
+          <div class="subject-block">
+            <div class="subject-block-head">${b.isFinalDay ? '🔁 Revision — ' : ''}${escapeHtml(b.subjectName)} <small class="muted">${b.minutes} min</small></div>
+            ${b.topics.map(t => `
+              <div class="plan-topic-row">
+                <input type="checkbox" data-action="toggle-topic" data-subject="${b.subjectId}" data-topic="${t.id}" ${t.done ? 'checked' : ''}>
+                <span class="topic-chip ${weightClass(t.weight)}">${escapeHtml(t.text)} · ${t.plannedMinutes}m</span>
+                <button class="round-btn timer-btn" data-action="timer-toggle" data-subject="${b.subjectId}" data-topic="${t.id}">⏱ Start</button>
+                <details class="session-detail"><summary>sessions</summary>${pomodoroSessions(t.plannedMinutes)}</details>
+              </div>
+            `).join('')}
+          </div>
+        `).join('')}
+      `;
+      el.appendChild(card);
+    });
 
-    let dayPlans = buildPlan(subject, days, topics);
+    el.querySelectorAll('[data-action="toggle-topic"]').forEach(cb =>
+      cb.addEventListener('change', () => Subjects.toggleDone(cb.dataset.subject, cb.dataset.topic, cb.checked)));
+    Analytics.wireTimers(el);
+  }
 
-    if (useAI) {
-      const aiResult = await AIBridge.refinePlan({ subject, days, topics: topics.map(t => t.text) });
-      if (aiResult) {
-        try {
-          dayPlans = aiResult.map(d => ({
-            title: d.title,
-            tip: d.tip,
-            topics: (d.topics || []).map((txt, i) => ({ text: txt, weight: 4, order: i }))
-          }));
-        } catch (e) { /* fall back to heuristic plan already built */ }
-      }
-    }
+  function renderSummary(days) {
+    const subjects = Subjects.load();
+    const el = document.getElementById('ptab-summary');
+    el.innerHTML = subjects.map(s => `
+      <div class="summary-block">
+        <h3>${escapeHtml(s.name)} — Outline</h3>
+        <ul>${s.topics.map(t => `<li>${t.done ? '✅' : '⬜'} ${escapeHtml(t.text)}${t.weight >= 4 ? ' ⭐' : ''}</li>`).join('') || '<li class="muted">No topics yet</li>'}</ul>
+      </div>
+    `).join('') || '<p class="muted">Add subjects to see a summary.</p>';
+  }
 
+  function renderFlow(days) {
+    const el = document.getElementById('ptab-flow');
+    el.innerHTML = '';
+    if (days.length === 0) { el.innerHTML = '<p class="muted">Generate a plan to see the flowchart.</p>'; return; }
+    const wrap = document.createElement('div');
+    wrap.className = 'flowchart';
+    days.slice(0, 8).forEach((d, i) => {
+      const node = document.createElement('div');
+      node.className = 'flow-node';
+      const label = new Date(d.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      node.innerHTML = `<h4>${label}</h4><p>${d.blocks.map(b => `${escapeHtml(b.subjectName)} (${b.minutes}m)`).join(', ')}</p>`;
+      wrap.appendChild(node);
+      const arrow = document.createElement('div');
+      arrow.className = 'flow-arrow';
+      arrow.textContent = '⬇';
+      wrap.appendChild(arrow);
+    });
+    const exams = document.createElement('div');
+    exams.className = 'flow-node';
+    exams.innerHTML = `<h4>🎓 Exams</h4><p>${Subjects.load().map(s => `${escapeHtml(s.name)} — ${new Date(s.examDate + 'T00:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'})}`).join('<br>') || 'None yet'}</p>`;
+    wrap.appendChild(exams);
+    el.appendChild(wrap);
+  }
+
+  async function generateAndRender() {
+    const days = generateMasterPlan();
     document.getElementById('planner-output').hidden = false;
-    renderPlan(dayPlans);
-    renderSummary(subject, topics);
-    renderFlow(subject, dayPlans);
+    renderDayPlan(days);
+    renderSummary(days);
+    renderFlow(days);
+    Analytics.render();
+  }
+
+  async function aiTips() {
+    const days = generateMasterPlan();
+    if (days.length === 0) { alert('Generate a plan first.'); return; }
+    const todayBlocks = days[0].blocks.map(b => `${b.subjectName}: ${b.topics.map(t => t.text).join(', ')}`).join(' | ');
+    const box = document.getElementById('planner-ai-tip');
+    box.hidden = false;
+    box.textContent = 'Thinking…';
+    const reply = await AIBridge.ask(`I have this study plan for today across subjects: ${todayBlocks}. Give me 3 short, practical tips (bullet style, no headers) to study this most effectively today.`);
+    box.textContent = reply || 'Connect an AI key in Settings to get personalised tips here — showing the heuristic plan only for now.';
   }
 
   function init() {
-    document.getElementById('planner-form').addEventListener('submit', e => {
-      e.preventDefault();
-      generate(false);
-    });
-    document.getElementById('planner-ai-btn').addEventListener('click', () => generate(true));
+    document.addEventListener('orbit:subjects-changed', generateAndRender);
+    document.getElementById('planner-generate-btn').addEventListener('click', generateAndRender);
+    document.getElementById('planner-ai-btn').addEventListener('click', aiTips);
 
     document.querySelectorAll('.ptab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -178,7 +191,9 @@ const Planner = (() => {
         document.getElementById('ptab-' + btn.dataset.ptab).classList.add('active');
       });
     });
+
+    generateAndRender();
   }
 
-  return { init };
+  return { init, generateAndRender };
 })();

@@ -1,19 +1,29 @@
 # 🪐 Orbit — Study Planner AI Agent
 
-Orbit is a browser-based AI study agent built for a school **Work Education** activity (IT subject). It combines an AI-style study planner, an instant doubt solver, a focus music player, exam pin reminders, a goals/targets tracker, a live clock, and a switchable dark "cosmos" theme — all in one dashboard.
+Orbit is a browser-based AI study agent built for a school **Work Education** activity (IT subject). It plans study time across *all* your subjects at once, solves doubts instantly, plays focus music (including searching any song on demand), syncs around your Google Calendar, and tracks your progress — all in one dynamic, themeable dashboard.
 
 Built with plain **HTML, CSS and JavaScript** (no framework, no build step, no C/C++/Java), so it runs directly in any browser and can be hosted online for free with GitHub Pages.
 
 ## ✨ Features
 
-- **AI Study Planner** — paste your syllabus/topic list and tell Orbit how many days are left. It scores topics by importance (keywords like "formula", "theorem", "definition", or a trailing `*` you add) and builds a day-by-day plan. If only 1 day is left, it outputs a focused "high-yield" list of must-do topics instead of spreading things out. Also generates an auto **Summary** outline and a visual **Flowchart** of the study workflow.
-- **Instant Doubt Solver** — a chat panel that solves maths expressions and common study questions offline, and can optionally call a real online AI model (see below) for full answers.
-- **Focus Music Zone** — a built-in audio player with a starter playlist, play/pause/seek/volume, and the ability to add your own track URL — so you never have to leave the app to listen to music while studying.
+- **Multi-subject AI Study Planner** — add every subject you have an exam for (with its own exam date and topic list). Orbit plans them *together*: subjects with a closer exam automatically get more of each day's study time, and a subject switches to pure revision on its last day before the exam. Includes:
+  - **Task breakdown** — each topic gets an estimated time and is split into Pomodoro-style study/break sessions.
+  - **Smart rescheduling** — the plan is generated live from whatever topics are still unfinished, so a missed day just rolls forward automatically, no manual re-planning needed.
+  - **Spaced repetition** — rating a topic "hard" when you finish it schedules automatic review reminders (1/3/7/16 days later) in the sidebar Review Queue.
+  - **Urgency/Difficulty Matrix** — a 2×2 view (Focus First / Build Mastery / Quick Polish / Later) built from each topic's importance score and your own difficulty rating.
+  - **Summary** and **Flowchart** views auto-generated from your plan.
+- **Instant Doubt Solver** — a chat panel that solves maths expressions and common study questions offline, and can optionally call a real online AI model for full answers.
+- **Search & play any song** — a built-in YouTube-powered search box plays music instantly through YouTube's own embedded player (nothing downloads), plus a separate custom playlist for direct audio links.
+- **Google Calendar sync (optional)** — connect your calendar so Orbit plans study time around your real classes and work, using your actual free time instead of a flat daily minute count.
+- **Exam Countdown Mode** — a live, second-by-second countdown banner for your nearest pinned exam that turns urgent (and pulses) inside the final 3 days.
 - **Pinned Reminders** — creative countdown pins (e.g. "Exam in 3 days") that change color and pulse as the date gets closer.
-- **Targets & Goals** — set a *Target* (a specific task + a time limit, with a live countdown/progress bar) and track your day's *Goals* as a simple checklist with a progress bar.
-- **Fancy analog + digital clock** on the sidebar.
-- **Dynamic cosmos background** — an animated starfield with twinkling stars and drifting nebula clouds on a `<canvas>`, with a parallax shift as you scroll — plus 5 switchable themes (Cosmos, Nebula Light, Ocean, Forest, Sunset), remembered per browser.
-- **Works fully offline by default**, with an optional online AI connection for the Doubt Solver and Planner.
+- **Progress Dashboard** — overall and per-subject completion bars, a study streak counter, and a planned-vs-actual time table.
+- **Time Analytics** — a ⏱ timer on every topic in your Day Plan logs real study time against the plan's estimate.
+- **Targets & Goals** — set a *Target* (a task + a time limit, with a live countdown/progress bar) and track your day's *Goals* as a checklist with a progress bar.
+- **A different motivational quote** every time you open Orbit.
+- **Creative "Orbit" clock** — a glowing core with three dots orbiting it like planets (hour/minute/second), instead of a plain clock face.
+- **Dynamic, theme-aware backgrounds** — an animated `<canvas>` scene that changes with *both* the tab you're on and the theme you pick: a solar system on the Dashboard, a black hole on the Study Planner, a star cluster on Doubt Solver, a meteor shower on Music, orbit rings on Progress, and a wormhole on Settings — all in the Cosmos/Nebula themes. Switch to **Forest** and it becomes a firefly-lit treeline; **Ocean** becomes rising bubbles and waves; **Sunset** becomes drifting embers under a warm glow. 5 themes total, remembered per browser.
+- **Works fully offline by default**, with optional online AI, Calendar, and music search for when you're connected.
 
 ## 🚀 Running it
 
@@ -28,53 +38,71 @@ python3 -m http.server 8000
 Or just double-click `index.html` (some browsers restrict `localStorage`/fonts on `file://`, so a local server is recommended).
 
 **Free online hosting (GitHub Pages):**
-1. Push this repo to GitHub (already done if you're reading this from the repo).
+1. Push this repo to GitHub (already done if you're reading this from the repo). Pages requires either a **public** repo, or GitHub Pro/Team/Enterprise for a private one.
 2. Go to **Settings → Pages** in the repository.
 3. Set **Source** to the `main` branch (or the branch you're using), root folder.
 4. Your site will be live at `https://<your-username>.github.io/<repo-name>/`.
 
 ## 🔌 Connecting a real online AI (optional)
 
-By default, Orbit's Doubt Solver and Planner run on a built-in offline engine (maths solving + rule-based tips + the topic-scoring algorithm), so the whole app works with **zero setup and no internet dependency** — good for a live classroom demo.
+By default, Orbit's Doubt Solver and Planner run on a built-in offline engine, so the whole app works with **zero setup and no internet dependency** — good for a live classroom demo.
 
-If you want the Doubt Solver to answer *any* question using a real internet AI model:
-1. Get an API key from an OpenAI-compatible provider.
-2. Open the **Settings** tab in Orbit.
-3. Enter the API endpoint (e.g. `https://api.openai.com/v1/chat/completions`), your model name, and your API key.
-4. Save. The key is stored only in your browser's `localStorage` — it is never sent anywhere except the endpoint you typed.
+Two genuinely free options (no credit card):
+
+**Google AI Studio (Gemini):**
+1. Go to `aistudio.google.com`, sign in, click **Get API key → Create API key**.
+2. In Orbit's **Settings** tab: Endpoint = `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`, Model = `gemini-2.0-flash`, paste your key, **Save**.
+
+**Groq:**
+1. Go to `console.groq.com`, sign up, create an API key.
+2. In Orbit's Settings: Endpoint = `https://api.groq.com/openai/v1/chat/completions`, Model = `llama-3.1-8b-instant`, paste your key, **Save**.
+
+Your key is stored only in your browser's `localStorage` — never sent anywhere except the endpoint you configured.
+
+## 📅 Connecting Google Calendar (optional)
+
+This needs a free OAuth Client ID from your own Google Cloud project (Orbit can't create one for you — Google requires it to be tied to your own account):
+
+1. Go to `console.cloud.google.com`, create a project (or use an existing one).
+2. **APIs & Services → Library** → enable the **Google Calendar API**.
+3. **APIs & Services → OAuth consent screen** → set it up as **External**, add your own Google account as a **Test user** (this keeps it free and avoids Google's app-review process).
+4. **APIs & Services → Credentials → Create Credentials → OAuth client ID** → Application type **Web application**.
+5. Under **Authorized JavaScript origins**, add both `http://localhost:8000` (for local testing) and your GitHub Pages URL (e.g. `https://<your-username>.github.io`).
+6. Copy the generated **Client ID** into Orbit's **Settings → Google Calendar** field, then click **Connect Google Calendar**.
+
+Orbit only requests read-only calendar access and uses it purely to find free time blocks for studying.
 
 ## 🗂️ Project structure
 
 ```
-index.html          Main page & layout
-css/style.css        Cosmos theme system, animations, responsive layout
+index.html            Main page & layout
+css/style.css          Theme system, scene overlays, animations, responsive layout
 js/
-  theme.js           Theme switching (5 themes) + persistence
-  starfield.js        Animated canvas starfield with scroll parallax
-  clock.js           Analog + digital clock
-  store.js            Small localStorage helper
-  aibridge.js          Optional online-AI connector (OpenAI-compatible)
-  pins.js              Pinned exam/assignment/event reminders
-  targets.js           "Target" cards with countdown progress bars
-  goals.js             Daily goal checklist
-  planner.js            The AI study-plan / summary / flowchart generator
-  doubtsolver.js        Chat-based doubt solver (offline + online)
-  music.js              Focus music player + playlist
-  settings.js           AI connection settings form
-  app.js               Tab navigation & app bootstrap
+  theme.js             Theme switching (5 themes) + persistence
+  starfield.js          Animated canvas scenes: per-tab structures + per-theme motifs
+  clock.js             The orbiting-dots clock
+  quotes.js             Daily motivational quote picker
+  store.js               localStorage helper + activity/streak tracking
+  aibridge.js             Optional online-AI connector (OpenAI-compatible)
+  calendar.js             Google Calendar OAuth + free/busy time lookup
+  pins.js                 Pinned exam/assignment/event reminders
+  targets.js              "Target" cards with countdown progress bars
+  goals.js                Daily goal checklist
+  subjects.js              Subject/topic CRUD (the planner's data model)
+  analytics.js             Progress dashboard, time tracking timers, difficulty matrix
+  srs.js                  Spaced-repetition review queue
+  planner.js               Multi-subject master plan generator (day plan/summary/flowchart)
+  doubtsolver.js           Chat-based doubt solver (offline + online)
+  music.js                 YouTube search-and-play + custom playlist
+  settings.js              AI connection settings form
+  app.js                  Tab navigation, exam countdown, app bootstrap
 ```
 
-## 🧠 How the "AI" planner thinks
+## 🧠 How the planner thinks
 
-Since this activity is meant to explore how an agent plans and reasons, the planner uses a transparent, explainable heuristic (rather than a black box):
+Each topic gets an importance score: +2 for a trailing `*`, +1 for importance keywords (formula, theorem, law, definition, exam, PYQ, etc.), and a small penalty for very short lines. Across subjects, each active exam gets an "urgency" weight of `1 / (days left + 1)` — so a closer exam claims more of each day's study minutes automatically. A subject's last day before its exam becomes a forced revision day using its highest-weighted topics. Because the plan only ever pulls from topics not yet marked done, skipping a day requires no manual fix — the next generation simply carries those topics forward.
 
-1. Each topic line gets a base importance score.
-2. Score **+2** if you mark it with a trailing `*`.
-3. Score **+1** if it contains an importance keyword (formula, theorem, law, definition, exam, PYQ, etc.).
-4. Very short lines are scored slightly lower (likely not a full concept).
-5. Topics are then either compressed into a single "high-yield" list (if you have 1 day left) or spread chronologically across the days you have, always reserving the final day for revision + a mock test.
-
-If an online AI key is configured, the "✨ Refine with AI" button instead asks the connected model to produce the plan directly, and falls back to the heuristic if that call fails.
+If an online AI key is configured, "✨ Get AI tips for today" asks the connected model for extra practical tips on top of the heuristic plan.
 
 ---
 

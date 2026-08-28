@@ -12,7 +12,7 @@ const Pins = (() => {
     }
     return pins;
   }
-  function save(pins) { Store.set(KEY, pins); }
+  function save(pins) { Store.set(KEY, pins); document.dispatchEvent(new CustomEvent('orbit:pins-changed')); }
 
   function daysLeft(dateStr) {
     const today = new Date(); today.setHours(0,0,0,0);
