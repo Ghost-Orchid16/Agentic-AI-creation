@@ -16,5 +16,24 @@ const Store = (() => {
   function todayKey() {
     return new Date().toISOString().slice(0, 10);
   }
-  return { get, set, uid, todayKey };
+  function logActivity() {
+    const key = 'orbit_activity_days';
+    const days = get(key, []);
+    const today = todayKey();
+    if (!days.includes(today)) {
+      days.push(today);
+      set(key, days.slice(-400));
+    }
+  }
+  function currentStreak() {
+    const days = new Set(get('orbit_activity_days', []));
+    let streak = 0;
+    const cursor = new Date();
+    while (days.has(cursor.toISOString().slice(0, 10))) {
+      streak += 1;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    return streak;
+  }
+  return { get, set, uid, todayKey, logActivity, currentStreak };
 })();

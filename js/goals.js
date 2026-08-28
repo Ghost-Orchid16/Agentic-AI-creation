@@ -33,6 +33,7 @@ const Goals = (() => {
         const l = todays();
         const g = l.find(x => x.id === cb.dataset.id);
         if (g) g.done = cb.checked;
+        if (cb.checked) Store.logActivity();
         setTodays(l);
         render();
       });

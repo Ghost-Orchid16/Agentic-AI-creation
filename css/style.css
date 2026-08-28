@@ -188,16 +188,16 @@ code {
 }
 .mini-btn:hover { filter: brightness(1.15); }
 
-/* ---------- Clock ---------- */
+/* ---------- Orbit clock ---------- */
 .clock-widget { text-align: center; }
-.analog-clock { width: 130px; height: 130px; margin: 0 auto; }
-.clock-face { fill: var(--bg-elev-2); stroke: var(--accent); stroke-width: 3; }
-.clock-ticks line { stroke: var(--text-muted); stroke-width: 2; }
-.hand { stroke-linecap: round; transform-origin: 100px 100px; }
-.hand.hour { stroke: var(--text); stroke-width: 6; }
-.hand.minute { stroke: var(--accent-2); stroke-width: 4; }
-.hand.second { stroke: var(--accent-3); stroke-width: 2; }
-.clock-pin { fill: var(--accent); }
+.orbit-clock { width: 140px; height: 140px; margin: 0 auto; }
+.orbit-path { fill: none; stroke: var(--border); stroke-width: 1; stroke-dasharray: 2 5; }
+.orbit-core { fill: var(--accent-2); animation: corepulse 2.4s ease-in-out infinite; }
+.orbit-dot { transition: cx .15s linear, cy .15s linear; }
+.orbit-dot.hour { fill: var(--text); }
+.orbit-dot.minute { fill: var(--accent-2); }
+.orbit-dot.second { fill: var(--accent-3); }
+@keyframes corepulse { 0%,100% { opacity: 0.8; r: 9; } 50% { opacity: 1; r: 11; } }
 .digital-time { font-family: var(--font-display); font-size: 1.3rem; margin-top: 8px; letter-spacing: 0.05em; }
 .digital-date { font-size: 0.75rem; color: var(--text-muted); }
 
@@ -423,6 +423,64 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 .modal h2 { margin-top: 0; }
 
 /* ===================== RESPONSIVE ===================== */
+/* ===================== V2 ADDITIONS ===================== */
+
+.quote-card { font-style: italic; text-align: center; font-size: 1rem; color: var(--text); border-left: 3px solid var(--accent); }
+
+.exam-hero { text-align: center; background: linear-gradient(120deg, rgba(139,123,255,0.18), rgba(67,224,255,0.12)); }
+.exam-hero-label { font-family: var(--font-display); font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px; }
+.exam-hero-timer { font-family: var(--font-display); font-size: 2rem; letter-spacing: 0.03em; }
+.exam-hero.urgent { background: linear-gradient(120deg, rgba(255,107,107,0.22), rgba(255,107,214,0.14)); animation: pulse 1.6s infinite; }
+.exam-hero.urgent .exam-hero-timer { color: var(--danger); }
+
+/* ---------- Subjects / topics ---------- */
+.subject-card { border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 14px; background: var(--bg-elev-2); }
+.subject-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.subject-head small { display: block; color: var(--text-muted); }
+.topic-list { margin: 10px 0; display: flex; flex-direction: column; gap: 6px; }
+.topic-row { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+.topic-row.done .topic-text { text-decoration: line-through; color: var(--text-muted); }
+.topic-row input[type="checkbox"] { width: auto; }
+.topic-text { flex: 1; }
+.diff-buttons { display: flex; gap: 2px; }
+.diff-dot { background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.7rem; padding: 0 1px; }
+.diff-dot.active { color: var(--warning); }
+.add-topic-form { margin-top: 6px; }
+
+.subject-block { margin-bottom: 12px; }
+.subject-block-head { font-weight: 700; color: var(--accent-2); margin-bottom: 6px; font-size: 0.9rem; }
+.plan-topic-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.plan-topic-row input[type="checkbox"] { width: auto; }
+.timer-btn { width: auto; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; }
+.timer-btn.timer-running { background: var(--danger); color: #fff; border-color: var(--danger); }
+.session-detail { font-size: 0.75rem; color: var(--text-muted); cursor: pointer; }
+.session-detail summary { cursor: pointer; }
+
+.ai-tip-box { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--bg-elev-2); border: 1px solid var(--accent); font-size: 0.88rem; white-space: pre-wrap; }
+
+/* ---------- Matrix ---------- */
+.matrix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.matrix-box { border: 1px solid var(--border); border-radius: 12px; padding: 12px; background: var(--bg-elev-2); }
+.matrix-box h4 { margin: 0 0 4px; font-family: var(--font-display); font-size: 0.85rem; }
+.matrix-box .tip { font-size: 0.75rem; color: var(--text-muted); margin: 0 0 8px; }
+
+/* ---------- Progress / time table ---------- */
+.time-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.time-table th, .time-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.time-table th { color: var(--text-muted); font-weight: 600; }
+
+/* ---------- Review queue ---------- */
+.review-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+.review-item:last-child { border-bottom: none; }
+
+/* ---------- YouTube search embed ---------- */
+.yt-embed-wrap { margin-top: 14px; }
+.yt-embed-wrap iframe { width: 100%; aspect-ratio: 16/9; border: 1px solid var(--border); border-radius: 12px; display: block; margin-bottom: 6px; }
+
+@media (max-width: 700px) {
+  .matrix-grid { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 900px) {
   .app-shell { grid-template-columns: 1fr; }
   .sidebar {

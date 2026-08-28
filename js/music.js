@@ -68,10 +68,26 @@ const Music = (() => {
     return div.innerHTML;
   }
 
+  function initSearch() {
+    const form = document.getElementById('yt-search-form');
+    if (!form) return;
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const q = document.getElementById('yt-search-input').value.trim();
+      if (!q) return;
+      const frame = document.getElementById('yt-embed');
+      const link = document.getElementById('yt-open-link');
+      frame.src = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(q)}`;
+      link.href = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+      document.getElementById('yt-embed-wrap').hidden = false;
+    });
+  }
+
   function init() {
     audio = document.getElementById('audio');
     load();
     renderList();
+    initSearch();
 
     const btnPlay = document.getElementById('btn-play');
     const eq = document.getElementById('eq');
